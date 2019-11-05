@@ -1,12 +1,12 @@
-#Project-Euterpe
+# Project-Euterpe
 
-###This project is a python application for musical hearing training.
+This project is a python application for musical hearing training.
 
-##Requirements
+## Requirements
 
-Python 3.6.
+- Python 3.6.
 
-##Linux
+## Linux
 
 ```shell
 git clone https://github.com/BaronVladziu/Project-Euterpe.git
