@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-def main():
-    print('Hello World!')
+from PyQt5 import QtWidgets
+
+from gui.window import Window
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    app = QtWidgets.QApplication(sys.argv)
+    w = Window()
+    w.show()
+    sys.exit(app.exec_())

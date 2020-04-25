@@ -6,7 +6,7 @@ This project is a python application for musical hearing training.
 
 - Python 3.6.
 
-## Linux
+## Running on Linux
 
 ```shell
 git clone https://github.com/BaronVladziu/Project-Euterpe.git
