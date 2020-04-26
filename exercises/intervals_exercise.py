@@ -4,8 +4,8 @@
 from notes.height import Height
 from notes.interval import Interval
 from notes.interval_generator import IntervalGenerator
-from notes.scale import Scale
 from synthesis.player import Player
+from notes.scale import Scale
 from synthesis.synthesizer import Synthesizer
 
 class IntervalExample:
