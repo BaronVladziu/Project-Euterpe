@@ -3,10 +3,9 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from exercises.intervals_exercise import IntervalsExercise
+from exercises.ten_o_heights_exercise import TenOHeightsExercise
 from gui.page_window import PageWindow
 from notes.height import Height
-from notes.interval import Interval
 from notes.scale import Scale
 from synthesis.noise_synthesizer import NoiseSynthesizer
 from synthesis.sine_synthesizer import SineSynthesizer
@@ -14,7 +13,7 @@ from synthesis.square_synthesizer import SquareSynthesizer
 from synthesis.triangle_synthesizer import TriangleSynthesizer
 
 
-class IntervalsWindow(PageWindow):
+class TenOHeightsWindow(PageWindow):
     def __init__(self):
         super().__init__()
         central_widget = QtWidgets.QWidget(self)
@@ -24,7 +23,7 @@ class IntervalsWindow(PageWindow):
 
         # Add picture
         self.label = QtWidgets.QLabel()
-        self.pixmap_path = 'graphics/intervals1.png'
+        self.pixmap_path = 'graphics/heights1.png'
         self.pixmap = QtGui.QPixmap(self.pixmap_path)
         self.label.setPixmap(self.pixmap)
         grid_layout.addWidget(
@@ -59,7 +58,7 @@ class IntervalsWindow(PageWindow):
         )
 
         # Add action button
-        self.action_button = QtWidgets.QPushButton("Generate New Interval", self)
+        self.action_button = QtWidgets.QPushButton("Generate New Height", self)
         grid_layout.addWidget(
             self.action_button,
             1, 3,
@@ -92,16 +91,16 @@ class IntervalsWindow(PageWindow):
         )
 
         # Add exercise class
-        self.exercise = IntervalsExercise(
+        self.exercise = TenOHeightsExercise(
             sampling_frequency=44100
         )
 
     def make_handleButton(self, button):
         def handleButton():
             if button == "settings_button":
-                self.goto("intervals_settings_page")
+                self.goto("ten_o_heights_settings_page")
             elif button == "generator_button":
-                self.goto("intervals_generator_page")
+                self.goto("ten_o_heights_generator_page")
             elif button == "back_button":
                 self.excercise_state = "start_state"
                 self.goto("main_page")
@@ -130,8 +129,14 @@ class IntervalsWindow(PageWindow):
             # Draw secondary cursors
             max_error = (self.exercise.get_possible_error()/2)
             painter.setPen(QtGui.QPen(QtCore.Qt.cyan, 1, QtCore.Qt.SolidLine))
-            painter.drawLine(QtCore.QPoint(x-max_error, 0), QtCore.QPoint(x-max_error, self.pixmap.height()))
-            painter.drawLine(QtCore.QPoint(x+max_error, 0), QtCore.QPoint(x+max_error, self.pixmap.height()))
+            painter.drawLine(
+                QtCore.QPoint(x-max_error/5, 0),
+                QtCore.QPoint(x-max_error/5, self.pixmap.height())
+            )
+            painter.drawLine(
+                QtCore.QPoint(x+max_error/5, 0),
+                QtCore.QPoint(x+max_error/5, self.pixmap.height())
+            )
 
             # Update picture
             self.label.setPixmap(self.pixmap)
@@ -139,10 +144,11 @@ class IntervalsWindow(PageWindow):
     def mousePressEvent(self, event):
         if self.excercise_state == "test_state":
             x = event.x()
-            answer = 2*(x - 10)
+            answer = 10*(x - 581)
             if_correct, true_value = self.exercise.answer_example(
                 answer
             )
+            print('ANSWER:', answer)
             self.pixmap = self.label.pixmap()
             painter = QtGui.QPainter(self.pixmap)
             if if_correct:
@@ -167,16 +173,15 @@ class IntervalsWindow(PageWindow):
                 )
                 painter.setPen(QtGui.QPen(QtCore.Qt.red, 1, QtCore.Qt.SolidLine))
             painter.drawLine(
-                QtCore.QPoint(true_value/2 + 10, 0),
-                QtCore.QPoint(true_value/2 + 10, self.pixmap.height())
+                QtCore.QPoint(true_value/10 + 581, 0),
+                QtCore.QPoint(true_value/10 + 581, self.pixmap.height())
             )
             self.label.setPixmap(self.pixmap)
             self.excercise_state = "start_state"
             self.action_button.setText("Generate New Interval")
 
-
-class IntervalsGeneratorWindow(PageWindow):
-    def __init__(self, parent:IntervalsWindow):
+class TenOHeightsGeneratorWindow(PageWindow):
+    def __init__(self, parent:TenOHeightsWindow):
         super().__init__()
         self.parent = parent
 
@@ -241,7 +246,7 @@ class IntervalsGeneratorWindow(PageWindow):
         )
         self.sampling_frequency_changed()
 
-        # Add button to intervals page
+        # Add button to ten_o_heights page
         back_button = QtWidgets.QPushButton("Back", self)
         grid_layout.addWidget(
             back_button,
@@ -272,7 +277,7 @@ class IntervalsGeneratorWindow(PageWindow):
             )
         else:
             raise RuntimeError(
-                '[IntervalsGeneratorWindow::synthesizer_type_changed()] Unknown synthesizer "'\
+                '[TenOHeightsGeneratorWindow::synthesizer_type_changed()] Unknown synthesizer "'\
                 + self.synthesizer_type_list.currentText()\
                 + '"!'
             )
@@ -285,12 +290,12 @@ class IntervalsGeneratorWindow(PageWindow):
     def make_handleButton(self, button):
         def handleButton():
             if button == "back_button":
-                self.goto("intervals_page")
+                self.goto("ten_o_heights_page")
         return handleButton
 
 
-class IntervalsSettingsWindow(PageWindow):
-    def __init__(self, parent:IntervalsWindow):
+class TenOHeightsSettingsWindow(PageWindow):
+    def __init__(self, parent:TenOHeightsWindow):
         super().__init__()
         self.parent = parent
 
@@ -299,33 +304,6 @@ class IntervalsSettingsWindow(PageWindow):
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
         grid_layout = QtWidgets.QGridLayout(central_widget)
-
-        # Add play type setting
-        self.play_type_label = QtWidgets.QLabel()
-        self.play_type_label.setText("Play Type:")
-        grid_layout.addWidget(
-            self.play_type_label,
-            0, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.play_type_list = QtWidgets.QComboBox()
-        self.play_type_list.addItems([
-            "Upwards",
-            "Downwards",
-            "Upwards with hold",
-            "Downwards with hold",
-            "Together"
-        ])
-        self.play_type_list.setCurrentIndex(0)
-        grid_layout.addWidget(
-            self.play_type_list,
-            0, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.play_type_list.currentIndexChanged.connect(
-            self.play_type_changed
-        )
-        self.play_type_changed()
 
         # Add scale setting
         self.scale_label = QtWidgets.QLabel()
@@ -412,60 +390,6 @@ class IntervalsSettingsWindow(PageWindow):
         )
         self.highest_height_changed()
 
-        # Add smallest interval setting
-        self.smallest_interval_label = QtWidgets.QLabel()
-        self.smallest_interval_label.setText("Smallest Interval:")
-        grid_layout.addWidget(
-            self.smallest_interval_label,
-            4, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.smallest_interval_list = QtWidgets.QComboBox()
-        self.smallest_interval_list.addItems([
-            "0",
-            "400",
-            "700",
-            "1200",
-            "1900",
-        ])
-        self.smallest_interval_list.setCurrentIndex(0)
-        grid_layout.addWidget(
-            self.smallest_interval_list,
-            4, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.smallest_interval_list.currentIndexChanged.connect(
-            self.smallest_interval_changed
-        )
-        self.smallest_interval_changed()
-
-        # Add largest interval setting
-        self.largest_interval_label = QtWidgets.QLabel()
-        self.largest_interval_label.setText("Largest Interval:")
-        grid_layout.addWidget(
-            self.largest_interval_label,
-            5, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.largest_interval_list = QtWidgets.QComboBox()
-        self.largest_interval_list.addItems([
-            "400",
-            "700",
-            "1200",
-            "1900",
-            "2400"
-        ])
-        self.largest_interval_list.setCurrentIndex(2)
-        grid_layout.addWidget(
-            self.largest_interval_list,
-            5, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.largest_interval_list.currentIndexChanged.connect(
-            self.largest_interval_changed
-        )
-        self.largest_interval_changed()
-
         # Add possible detune setting
         self.possible_detune_label = QtWidgets.QLabel()
         self.possible_detune_label.setText("Possible Detune:")
@@ -540,7 +464,7 @@ class IntervalsSettingsWindow(PageWindow):
         )
         self.possible_error_changed()
 
-        # Add button to intervals page
+        # Add button to ten_o_heights page
         back_button = QtWidgets.QPushButton("Back", self)
         grid_layout.addWidget(
             back_button,
@@ -550,11 +474,6 @@ class IntervalsSettingsWindow(PageWindow):
         )
         back_button.clicked.connect(
             self.make_handleButton("back_button")
-        )
-
-    def play_type_changed(self):
-        self.parent.exercise.set_play_type(
-            self.play_type_list.currentText()
         )
 
     def scale_changed(self):
@@ -572,20 +491,6 @@ class IntervalsSettingsWindow(PageWindow):
             Height.from_name(self.highest_height_list.currentText())
         )
 
-    def smallest_interval_changed(self):
-        self.parent.exercise.set_smallest_interval(
-            Interval.from_cents(
-                int(self.smallest_interval_list.currentText())
-            )
-        )
-
-    def largest_interval_changed(self):
-        self.parent.exercise.set_largest_interval(
-            Interval.from_cents(
-                int(self.largest_interval_list.currentText())
-            )
-        )
-
     def possible_detune_changed(self):
         self.parent.exercise.set_possible_detune(
             int(self.possible_detune_list.currentText())
@@ -599,5 +504,5 @@ class IntervalsSettingsWindow(PageWindow):
     def make_handleButton(self, button):
         def handleButton():
             if button == "back_button":
-                self.goto("intervals_page")
+                self.goto("ten_o_heights_page")
         return handleButton

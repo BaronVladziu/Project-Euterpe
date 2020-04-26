@@ -2,9 +2,11 @@
 
 This project is a python application for musical hearing training.
 
+
 ## Requirements
 
 - Python 3.6+
+
 
 ## Running on Windows
 

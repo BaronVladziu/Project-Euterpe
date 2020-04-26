@@ -8,7 +8,6 @@ from gui.page_window import PageWindow
 class MainWindow(PageWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Euterpe pre-alpha")
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
         grid_layout = QtWidgets.QGridLayout(central_widget)
@@ -24,11 +23,11 @@ class MainWindow(PageWindow):
         grid_layout.addWidget(help_label, 1, 0, 1, 2, QtCore.Qt.AlignCenter)
 
         # Add button to heights page
-        # heights_button = QtWidgets.QPushButton("Recognise Heights", self)
-        # grid_layout.addWidget(heights_button, 2, 0, alignment=QtCore.Qt.AlignCenter)
-        # heights_button.clicked.connect(
-        #     self.make_handleButton("heights_button")
-        # )
+        heights_button = QtWidgets.QPushButton("Recognise Heights", self)
+        grid_layout.addWidget(heights_button, 2, 0, alignment=QtCore.Qt.AlignCenter)
+        heights_button.clicked.connect(
+            self.make_handleButton("ten_o_heights_button")
+        )
 
         # Add button to intervals page
         intervals_button = QtWidgets.QPushButton("Recognise Intervals", self)
@@ -39,8 +38,8 @@ class MainWindow(PageWindow):
 
     def make_handleButton(self, button):
         def handleButton():
-            if button == "heights_button":
-                self.goto("heights_page")
+            if button == "ten_o_heights_button":
+                self.goto("ten_o_heights_page")
             if button == "intervals_button":
                 self.goto("intervals_page")
         return handleButton
