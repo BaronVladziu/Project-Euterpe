@@ -148,7 +148,6 @@ class TenOHeightsWindow(PageWindow):
             if_correct, true_value = self.exercise.answer_example(
                 answer
             )
-            print('ANSWER:', answer)
             self.pixmap = self.label.pixmap()
             painter = QtGui.QPainter(self.pixmap)
             if if_correct:
@@ -310,7 +309,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.scale_label.setText("Scale:")
         grid_layout.addWidget(
             self.scale_label,
-            1, 0,
+            0, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.scale_list = QtWidgets.QComboBox()
@@ -322,7 +321,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.scale_list.setCurrentIndex(0)
         grid_layout.addWidget(
             self.scale_list,
-            1, 1,
+            0, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.scale_list.currentIndexChanged.connect(
@@ -335,7 +334,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.lowest_height_label.setText("Lowest Height:")
         grid_layout.addWidget(
             self.lowest_height_label,
-            2, 0,
+            1, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.lowest_height_list = QtWidgets.QComboBox()
@@ -349,10 +348,10 @@ class TenOHeightsSettingsWindow(PageWindow):
             "C6",
             "C7"
         ])
-        self.lowest_height_list.setCurrentIndex(3)
+        self.lowest_height_list.setCurrentIndex(0)
         grid_layout.addWidget(
             self.lowest_height_list,
-            2, 1,
+            1, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.lowest_height_list.currentIndexChanged.connect(
@@ -365,7 +364,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.highest_height_label.setText("Highest Height:")
         grid_layout.addWidget(
             self.highest_height_label,
-            3, 0,
+            2, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.highest_height_list = QtWidgets.QComboBox()
@@ -379,10 +378,10 @@ class TenOHeightsSettingsWindow(PageWindow):
             "C7",
             "C8"
         ])
-        self.highest_height_list.setCurrentIndex(4)
+        self.highest_height_list.setCurrentIndex(7)
         grid_layout.addWidget(
             self.highest_height_list,
-            3, 1,
+            2, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.highest_height_list.currentIndexChanged.connect(
@@ -395,7 +394,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.possible_detune_label.setText("Possible Detune:")
         grid_layout.addWidget(
             self.possible_detune_label,
-            6, 0,
+            3, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_detune_list = QtWidgets.QComboBox()
@@ -425,7 +424,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.possible_detune_list.setCurrentIndex(1)
         grid_layout.addWidget(
             self.possible_detune_list,
-            6, 1,
+            3, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_detune_list.currentIndexChanged.connect(
@@ -438,7 +437,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.possible_error_label.setText("Possible Error:")
         grid_layout.addWidget(
             self.possible_error_label,
-            7, 0,
+            4, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_error_list = QtWidgets.QComboBox()
@@ -453,10 +452,10 @@ class TenOHeightsSettingsWindow(PageWindow):
             "1000",
             "2000"
         ])
-        self.possible_error_list.setCurrentIndex(2)
+        self.possible_error_list.setCurrentIndex(6)
         grid_layout.addWidget(
             self.possible_error_list,
-            7, 1,
+            4, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_error_list.currentIndexChanged.connect(
@@ -468,7 +467,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         back_button = QtWidgets.QPushButton("Back", self)
         grid_layout.addWidget(
             back_button,
-            8, 0,
+            5, 0,
             1, 2,
             alignment=QtCore.Qt.AlignCenter
         )
