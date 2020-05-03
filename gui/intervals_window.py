@@ -10,6 +10,7 @@ from notes.height import Height
 from notes.interval import Interval
 from notes.scale import Scale
 from synthesis.noise_synthesizer import NoiseSynthesizer
+from synthesis.saw_synthesizer import SawSynthesizer
 from synthesis.sine_synthesizer import SineSynthesizer
 from synthesis.square_synthesizer import SquareSynthesizer
 from synthesis.triangle_synthesizer import TriangleSynthesizer
@@ -163,6 +164,7 @@ class IntervalsGeneratorWindow(PageWindow):
         self.synthesizer_type_list = QtWidgets.QComboBox()
         self.synthesizer_type_list.addItems([
             "Sine",
+            "Saw",
             "Triangle",
             "Square",
             "Noise"
@@ -223,6 +225,10 @@ class IntervalsGeneratorWindow(PageWindow):
         if self.synthesizer_type_list.currentText() == "Sine":
             self.parent.exercise.set_synthesizer(
                 SineSynthesizer
+            )
+        elif self.synthesizer_type_list.currentText() == "Saw":
+            self.parent.exercise.set_synthesizer(
+                SawSynthesizer
             )
         elif self.synthesizer_type_list.currentText() == "Triangle":
             self.parent.exercise.set_synthesizer(

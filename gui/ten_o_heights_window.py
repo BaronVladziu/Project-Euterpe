@@ -162,6 +162,7 @@ class TenOHeightsGeneratorWindow(PageWindow):
         self.synthesizer_type_list = QtWidgets.QComboBox()
         self.synthesizer_type_list.addItems([
             "Sine",
+            "Saw",
             "Triangle",
             "Square",
             "Noise"
@@ -222,6 +223,10 @@ class TenOHeightsGeneratorWindow(PageWindow):
         if self.synthesizer_type_list.currentText() == "Sine":
             self.parent.exercise.set_synthesizer(
                 SineSynthesizer
+            )
+        elif self.synthesizer_type_list.currentText() == "Saw":
+            self.parent.exercise.set_synthesizer(
+                SawSynthesizer
             )
         elif self.synthesizer_type_list.currentText() == "Triangle":
             self.parent.exercise.set_synthesizer(
