@@ -55,10 +55,15 @@ class Synthesizer:
         # Filter base signal
         result = scipy.signal.sosfilt(sos, result)
 
-        return self._base_synthesizer.generate_frequency(
-            frequency=frequency,
-            time=time
-        )
+        # Add fades
+        fade_signal = np.concatenate([
+            np.zeros(int(self._sampling_frequency/20)),
+            np.arange(0, 1, step=100/self._sampling_frequency, dtype=float)
+        ])
+        result[:len(fade_signal)] = result[:len(fade_signal)] * fade_signal
+        result[-len(fade_signal):] = result[-len(fade_signal):] * np.flip(fade_signal)
+
+        return result
 
     def generate_height(self, height:Height, time:float) -> np.array:
         """
