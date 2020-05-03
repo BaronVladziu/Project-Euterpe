@@ -5,6 +5,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from exercises.intervals_exercise import IntervalsExercise
 from gui.page_window import PageWindow
+from gui.picture_label import PictureLabel
 from notes.height import Height
 from notes.interval import Interval
 from notes.scale import Scale
@@ -20,22 +21,17 @@ class IntervalsWindow(PageWindow):
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
         grid_layout = QtWidgets.QGridLayout(central_widget)
-        self.excercise_state = "start_state"
 
         # Add picture
-        self.label = QtWidgets.QLabel()
-        self.pixmap_path = 'graphics/intervals1.png'
-        self.pixmap = QtGui.QPixmap(self.pixmap_path)
-        self.label.setPixmap(self.pixmap)
+        self.label = PictureLabel('graphics/intervals1.png')
         grid_layout.addWidget(
             self.label,
             0, 0,
             1, 6,
             QtCore.Qt.AlignCenter
         )
-        self.label.setMouseTracking(True)
-        self.label.mouseMoveEvent = self.mouseMoveEvent
-        self.label.mousePressEvent = self.mousePressEvent
+        self.label.set_move_event(self.move_event)
+        self.label.set_press_event(self.press_event)
 
         # Add button to main page
         back_button = QtWidgets.QPushButton("Back", self)
@@ -103,84 +99,54 @@ class IntervalsWindow(PageWindow):
             elif button == "generator_button":
                 self.goto("intervals_generator_page")
             elif button == "back_button":
-                self.excercise_state = "start_state"
+                self.label.if_active = False
                 self.goto("main_page")
             elif button == "action_button":
-                if self.excercise_state == "start_state":
-                    self.excercise_state = "test_state"
+                if not self.label.if_active:
+                    self.label.if_active = True
                     self.state_label.setText("Click near correct value on figure above")
                     self.exercise.generate_new_example()
                     self.exercise.play_example()
                     self.action_button.setText("Listen Again")
-                elif self.excercise_state == "test_state":
+                elif self.label.if_active:
                     self.exercise.play_example()
         return handleButton
 
-    def mouseMoveEvent(self, event):
-        if self.excercise_state == "test_state":
-            # Get original picture
-            self.pixmap = QtGui.QPixmap(self.pixmap_path)
+    def move_event(self, x, y):
+        self.label.mark_max_error(x, self.exercise.get_possible_error()/2)
 
-            # Draw main cursor
-            x = event.x()
-            painter = QtGui.QPainter(self.pixmap)
-            painter.setPen(QtGui.QPen(QtCore.Qt.blue, 1, QtCore.Qt.SolidLine))
-            painter.drawLine(QtCore.QPoint(x, 0), QtCore.QPoint(x, self.pixmap.height()))
-
-            # Draw secondary cursors
-            max_error = (self.exercise.get_possible_error()/2)
-            painter.setPen(QtGui.QPen(QtCore.Qt.cyan, 1, QtCore.Qt.SolidLine))
-            painter.drawLine(QtCore.QPoint(x-max_error, 0), QtCore.QPoint(x-max_error, self.pixmap.height()))
-            painter.drawLine(QtCore.QPoint(x+max_error, 0), QtCore.QPoint(x+max_error, self.pixmap.height()))
-
-            # Update picture
-            self.label.setPixmap(self.pixmap)
-
-    def mousePressEvent(self, event):
-        if self.excercise_state == "test_state":
-            x = event.x()
-            answer = 2*(x - 10)
-            if_correct, true_value = self.exercise.answer_example(
-                answer
+    def press_event(self, x, y):
+        answer = 2*(x - 10)
+        if_correct, true_value = self.exercise.answer_example(
+            answer
+        )
+        if if_correct:
+            self.state_label.setText(
+                "CORRECT! Pressed: "\
+                + str(answer)\
+                + "±"\
+                + str(int(self.exercise.get_possible_error()))\
+                + "c, Real value: "\
+                + str(int(true_value))
             )
-            self.pixmap = self.label.pixmap()
-            painter = QtGui.QPainter(self.pixmap)
-            if if_correct:
-                self.state_label.setText(
-                    "CORRECT! Pressed: "\
-                    + str(answer)\
-                    + "±"\
-                    + str(int(self.exercise.get_possible_error()))\
-                    + "c, Real value: "\
-                    + str(int(true_value))
-                )
-                painter.setPen(QtGui.QPen(QtCore.Qt.green, 1, QtCore.Qt.SolidLine))
-            else:
-                self.state_label.setText(
-                    "WRONG :c Pressed: "\
-                    + str(answer)\
-                    + "±"\
-                    + str(int(self.exercise.get_possible_error()))\
-                    + "c, Real value: "\
-                    + str(int(true_value))\
-                    + "c"
-                )
-                painter.setPen(QtGui.QPen(QtCore.Qt.red, 1, QtCore.Qt.SolidLine))
-            painter.drawLine(
-                QtCore.QPoint(true_value/2 + 10, 0),
-                QtCore.QPoint(true_value/2 + 10, self.pixmap.height())
+        else:
+            self.state_label.setText(
+                "WRONG :c Pressed: "\
+                + str(answer)\
+                + "±"\
+                + str(int(self.exercise.get_possible_error()))\
+                + "c, Real value: "\
+                + str(int(true_value))\
+                + "c"
             )
-            self.label.setPixmap(self.pixmap)
-            self.excercise_state = "start_state"
-            self.action_button.setText("Generate New Interval")
+        self.action_button.setText("Generate New Interval")
+        self.label.mark_answer(if_correct, true_value/2 + 10)
 
 
 class IntervalsGeneratorWindow(PageWindow):
     def __init__(self, parent:IntervalsWindow):
         super().__init__()
         self.parent = parent
-
-        self.setMouseTracking(True)
 
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
@@ -293,8 +259,6 @@ class IntervalsSettingsWindow(PageWindow):
     def __init__(self, parent:IntervalsWindow):
         super().__init__()
         self.parent = parent
-
-        self.setMouseTracking(True)
 
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)

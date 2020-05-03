@@ -5,6 +5,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from exercises.ten_o_heights_exercise import TenOHeightsExercise
 from gui.page_window import PageWindow
+from gui.picture_label import PictureLabel
 from notes.height import Height
 from notes.scale import Scale
 from synthesis.noise_synthesizer import NoiseSynthesizer
@@ -19,22 +20,17 @@ class TenOHeightsWindow(PageWindow):
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
         grid_layout = QtWidgets.QGridLayout(central_widget)
-        self.excercise_state = "start_state"
 
         # Add picture
-        self.label = QtWidgets.QLabel()
-        self.pixmap_path = 'graphics/heights1.png'
-        self.pixmap = QtGui.QPixmap(self.pixmap_path)
-        self.label.setPixmap(self.pixmap)
+        self.label = PictureLabel('graphics/heights1.png')
         grid_layout.addWidget(
             self.label,
             0, 0,
             1, 6,
             QtCore.Qt.AlignCenter
         )
-        self.label.setMouseTracking(True)
-        self.label.mouseMoveEvent = self.mouseMoveEvent
-        self.label.mousePressEvent = self.mousePressEvent
+        self.label.set_move_event(self.move_event)
+        self.label.set_press_event(self.press_event)
 
         # Add button to main page
         back_button = QtWidgets.QPushButton("Back", self)
@@ -102,90 +98,54 @@ class TenOHeightsWindow(PageWindow):
             elif button == "generator_button":
                 self.goto("ten_o_heights_generator_page")
             elif button == "back_button":
-                self.excercise_state = "start_state"
+                self.label.if_active = False
                 self.goto("main_page")
             elif button == "action_button":
-                if self.excercise_state == "start_state":
-                    self.excercise_state = "test_state"
+                if not self.label.if_active:
+                    self.label.if_active = True
                     self.state_label.setText("Click near correct value on figure above")
                     self.exercise.generate_new_example()
                     self.exercise.play_example()
                     self.action_button.setText("Listen Again")
-                elif self.excercise_state == "test_state":
+                elif self.label.if_active:
                     self.exercise.play_example()
         return handleButton
 
-    def mouseMoveEvent(self, event):
-        if self.excercise_state == "test_state":
-            # Get original picture
-            self.pixmap = QtGui.QPixmap(self.pixmap_path)
+    def move_event(self, x, y):
+        self.label.mark_max_error(x, self.exercise.get_possible_error()/10)
 
-            # Draw main cursor
-            x = event.x()
-            painter = QtGui.QPainter(self.pixmap)
-            painter.setPen(QtGui.QPen(QtCore.Qt.blue, 1, QtCore.Qt.SolidLine))
-            painter.drawLine(QtCore.QPoint(x, 0), QtCore.QPoint(x, self.pixmap.height()))
-
-            # Draw secondary cursors
-            max_error = (self.exercise.get_possible_error()/2)
-            painter.setPen(QtGui.QPen(QtCore.Qt.cyan, 1, QtCore.Qt.SolidLine))
-            painter.drawLine(
-                QtCore.QPoint(x-max_error/5, 0),
-                QtCore.QPoint(x-max_error/5, self.pixmap.height())
+    def press_event(self, x, y):
+        answer = 10*(x - 581)
+        if_correct, true_value = self.exercise.answer_example(
+            answer
+        )
+        if if_correct:
+            self.state_label.setText(
+                "CORRECT! Pressed: "\
+                + str(answer)\
+                + "±"\
+                + str(int(self.exercise.get_possible_error()))\
+                + "c, Real value: "\
+                + str(int(true_value))
             )
-            painter.drawLine(
-                QtCore.QPoint(x+max_error/5, 0),
-                QtCore.QPoint(x+max_error/5, self.pixmap.height())
+        else:
+            self.state_label.setText(
+                "WRONG :c Pressed: "\
+                + str(answer)\
+                + "±"\
+                + str(int(self.exercise.get_possible_error()))\
+                + "c, Real value: "\
+                + str(int(true_value))\
+                + "c"
             )
-
-            # Update picture
-            self.label.setPixmap(self.pixmap)
-
-    def mousePressEvent(self, event):
-        if self.excercise_state == "test_state":
-            x = event.x()
-            answer = 10*(x - 581)
-            if_correct, true_value = self.exercise.answer_example(
-                answer
-            )
-            print('ANSWER:', answer)
-            self.pixmap = self.label.pixmap()
-            painter = QtGui.QPainter(self.pixmap)
-            if if_correct:
-                self.state_label.setText(
-                    "CORRECT! Pressed: "\
-                    + str(answer)\
-                    + "±"\
-                    + str(int(self.exercise.get_possible_error()))\
-                    + "c, Real value: "\
-                    + str(int(true_value))
-                )
-                painter.setPen(QtGui.QPen(QtCore.Qt.green, 1, QtCore.Qt.SolidLine))
-            else:
-                self.state_label.setText(
-                    "WRONG :c Pressed: "\
-                    + str(answer)\
-                    + "±"\
-                    + str(int(self.exercise.get_possible_error()))\
-                    + "c, Real value: "\
-                    + str(int(true_value))\
-                    + "c"
-                )
-                painter.setPen(QtGui.QPen(QtCore.Qt.red, 1, QtCore.Qt.SolidLine))
-            painter.drawLine(
-                QtCore.QPoint(true_value/10 + 581, 0),
-                QtCore.QPoint(true_value/10 + 581, self.pixmap.height())
-            )
-            self.label.setPixmap(self.pixmap)
-            self.excercise_state = "start_state"
-            self.action_button.setText("Generate New Interval")
+        self.action_button.setText("Generate New Interval")
+        self.label.mark_answer(if_correct, true_value/10 + 581)
+            
 
 class TenOHeightsGeneratorWindow(PageWindow):
     def __init__(self, parent:TenOHeightsWindow):
         super().__init__()
         self.parent = parent
-
-        self.setMouseTracking(True)
 
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
@@ -299,8 +259,6 @@ class TenOHeightsSettingsWindow(PageWindow):
         super().__init__()
         self.parent = parent
 
-        self.setMouseTracking(True)
-
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
         grid_layout = QtWidgets.QGridLayout(central_widget)
@@ -310,7 +268,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.scale_label.setText("Scale:")
         grid_layout.addWidget(
             self.scale_label,
-            1, 0,
+            0, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.scale_list = QtWidgets.QComboBox()
@@ -322,7 +280,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.scale_list.setCurrentIndex(0)
         grid_layout.addWidget(
             self.scale_list,
-            1, 1,
+            0, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.scale_list.currentIndexChanged.connect(
@@ -335,7 +293,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.lowest_height_label.setText("Lowest Height:")
         grid_layout.addWidget(
             self.lowest_height_label,
-            2, 0,
+            1, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.lowest_height_list = QtWidgets.QComboBox()
@@ -349,10 +307,10 @@ class TenOHeightsSettingsWindow(PageWindow):
             "C6",
             "C7"
         ])
-        self.lowest_height_list.setCurrentIndex(3)
+        self.lowest_height_list.setCurrentIndex(0)
         grid_layout.addWidget(
             self.lowest_height_list,
-            2, 1,
+            1, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.lowest_height_list.currentIndexChanged.connect(
@@ -365,7 +323,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.highest_height_label.setText("Highest Height:")
         grid_layout.addWidget(
             self.highest_height_label,
-            3, 0,
+            2, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.highest_height_list = QtWidgets.QComboBox()
@@ -379,10 +337,10 @@ class TenOHeightsSettingsWindow(PageWindow):
             "C7",
             "C8"
         ])
-        self.highest_height_list.setCurrentIndex(4)
+        self.highest_height_list.setCurrentIndex(7)
         grid_layout.addWidget(
             self.highest_height_list,
-            3, 1,
+            2, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.highest_height_list.currentIndexChanged.connect(
@@ -395,7 +353,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.possible_detune_label.setText("Possible Detune:")
         grid_layout.addWidget(
             self.possible_detune_label,
-            6, 0,
+            3, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_detune_list = QtWidgets.QComboBox()
@@ -425,7 +383,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.possible_detune_list.setCurrentIndex(1)
         grid_layout.addWidget(
             self.possible_detune_list,
-            6, 1,
+            3, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_detune_list.currentIndexChanged.connect(
@@ -438,7 +396,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         self.possible_error_label.setText("Possible Error:")
         grid_layout.addWidget(
             self.possible_error_label,
-            7, 0,
+            4, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_error_list = QtWidgets.QComboBox()
@@ -453,10 +411,10 @@ class TenOHeightsSettingsWindow(PageWindow):
             "1000",
             "2000"
         ])
-        self.possible_error_list.setCurrentIndex(2)
+        self.possible_error_list.setCurrentIndex(6)
         grid_layout.addWidget(
             self.possible_error_list,
-            7, 1,
+            4, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_error_list.currentIndexChanged.connect(
@@ -468,7 +426,7 @@ class TenOHeightsSettingsWindow(PageWindow):
         back_button = QtWidgets.QPushButton("Back", self)
         grid_layout.addWidget(
             back_button,
-            8, 0,
+            5, 0,
             1, 2,
             alignment=QtCore.Qt.AlignCenter
         )
