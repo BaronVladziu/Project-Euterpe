@@ -162,6 +162,7 @@ class TenOHeightsGeneratorWindow(PageWindow):
         self.synthesizer_type_list = QtWidgets.QComboBox()
         self.synthesizer_type_list.addItems([
             "Sine",
+            "Saw",
             "Triangle",
             "Square",
             "Noise"
@@ -223,6 +224,10 @@ class TenOHeightsGeneratorWindow(PageWindow):
             self.parent.exercise.set_synthesizer(
                 SineSynthesizer
             )
+        elif self.synthesizer_type_list.currentText() == "Saw":
+            self.parent.exercise.set_synthesizer(
+                SawSynthesizer
+            )
         elif self.synthesizer_type_list.currentText() == "Triangle":
             self.parent.exercise.set_synthesizer(
                 TriangleSynthesizer
@@ -273,9 +278,13 @@ class TenOHeightsSettingsWindow(PageWindow):
         )
         self.scale_list = QtWidgets.QComboBox()
         self.scale_list.addItems([
-            "12-TET",
-            "24-TET",
-            "Pythagorean"
+            "12-TET (A=440Hz)",
+            "24-TET (A=440Hz)",
+            "31-TET (A=440Hz)",
+            "Pythagorean (C-based) (A=440Hz)",
+            "Just (C-based) (A=440Hz)",
+            "Quarter-comma meantone (C-based) (A=440Hz)",
+            "Bach's (according to Werckmeister)"
         ])
         self.scale_list.setCurrentIndex(0)
         grid_layout.addWidget(

@@ -10,7 +10,7 @@ from notes.scale import Scale
 
 class IntervalGenerator:
     def __init__(self,
-        scale=Scale('12-TET'),
+        scale=Scale('12-TET (A=440Hz)'),
         lowest_height=Height.from_midi(21),
         highest_height=Height.from_midi(108),
         possible_detune=1,

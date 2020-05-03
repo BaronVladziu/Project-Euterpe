@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import scipy.signal
 
 from notes.height import Height
 from notes.interval import Interval
@@ -28,7 +29,7 @@ class Synthesizer:
             sampling_frequency
         )
 
-    def generate_frequency(self, frequency:float, time:float) -> np.array:
+    def generate_frequency(self, frequency:float, time:float, antialiasing_order=20) -> np.array:
         """
         Generate signal of given frequency and length.
 
@@ -37,10 +38,32 @@ class Synthesizer:
 
         :returns: Output signal.
         """
-        return self._base_synthesizer.generate_frequency(
+        # Generate base signal
+        result = self._base_synthesizer.generate_frequency(
             frequency=frequency,
             time=time
         )
+
+        # Create lowpass filter
+        sos = scipy.signal.butter(
+            antialiasing_order,
+            self._sampling_frequency/2.2,
+            fs=self._sampling_frequency,
+            btype='lowpass',
+            output='sos')
+        
+        # Filter base signal
+        result = scipy.signal.sosfilt(sos, result)
+
+        # Add fades
+        fade_signal = np.concatenate([
+            np.zeros(int(self._sampling_frequency/20)),
+            np.arange(0, 1, step=100/self._sampling_frequency, dtype=float)
+        ])
+        result[:len(fade_signal)] = result[:len(fade_signal)] * fade_signal
+        result[-len(fade_signal):] = result[-len(fade_signal):] * np.flip(fade_signal)
+
+        return result
 
     def generate_height(self, height:Height, time:float) -> np.array:
         """

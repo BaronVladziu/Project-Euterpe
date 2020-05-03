@@ -5,7 +5,7 @@ import numpy as np
 from notes.height import Height
 from notes.interval import Interval
 
-class TriangleSynthesizer:
+class SawSynthesizer:
     def __init__(self, sampling_frequency:int):
         """
         Class for sine signal generation.
@@ -16,16 +16,16 @@ class TriangleSynthesizer:
 
     def generate_frequency(self, frequency:float, time:float, volume=0.2) -> np.array:
         """
-        Generate triangle signal of given frequency and length.
+        Generate saw signal of given frequency and length.
 
         :frequency: Output signal frequency.
         :time: Length of signal in seconds.
         :volume: Gain of output signal.
 
-        :returns: Triangle signal.
+        :returns: Saw signal.
         """
         assert frequency < 2*self._sampling_frequency, \
-                "[TriangleSynthesizer::generate(" \
+                "[SawSynthesizer::generate(" \
                 + str(frequency) \
                 + ", " \
                 + str(time) \
@@ -33,6 +33,4 @@ class TriangleSynthesizer:
         time = np.arange(
             int(self._sampling_frequency*time)
         ) / self._sampling_frequency
-        saw_signal = 4*((frequency*time % 0.5) - 0.25)
-        square_signal = np.sign(np.sin(4*np.pi*frequency*time))
-        return volume*saw_signal*square_signal
+        return volume*2*((frequency*time % 1.0) - 0.5)
