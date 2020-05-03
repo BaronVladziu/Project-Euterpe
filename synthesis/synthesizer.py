@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import scipy.signal
 
 from notes.height import Height
 from notes.interval import Interval
@@ -28,7 +29,7 @@ class Synthesizer:
             sampling_frequency
         )
 
-    def generate_frequency(self, frequency:float, time:float) -> np.array:
+    def generate_frequency(self, frequency:float, time:float, antialiasing_order=20) -> np.array:
         """
         Generate signal of given frequency and length.
 
@@ -37,6 +38,23 @@ class Synthesizer:
 
         :returns: Output signal.
         """
+        # Generate base signal
+        result = self._base_synthesizer.generate_frequency(
+            frequency=frequency,
+            time=time
+        )
+
+        # Create lowpass filter
+        sos = scipy.signal.butter(
+            antialiasing_order,
+            self._sampling_frequency/2.2,
+            fs=self._sampling_frequency,
+            btype='lowpass',
+            output='sos')
+        
+        # Filter base signal
+        result = scipy.signal.sosfilt(sos, result)
+
         return self._base_synthesizer.generate_frequency(
             frequency=frequency,
             time=time
