@@ -278,9 +278,13 @@ class TenOHeightsSettingsWindow(PageWindow):
         )
         self.scale_list = QtWidgets.QComboBox()
         self.scale_list.addItems([
-            "12-TET",
-            "24-TET",
-            "Pythagorean"
+            "12-TET (A=440Hz)",
+            "24-TET (A=440Hz)",
+            "31-TET (A=440Hz)",
+            "Pythagorean (C-based) (A=440Hz)",
+            "Just (C-based) (A=440Hz)",
+            "Quarter-comma meantone (C-based) (A=440Hz)",
+            "Bach's (according to Werckmeister)"
         ])
         self.scale_list.setCurrentIndex(0)
         grid_layout.addWidget(
