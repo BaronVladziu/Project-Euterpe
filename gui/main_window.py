@@ -6,8 +6,17 @@ from PyQt5 import QtCore, QtWidgets
 from gui.page_window import PageWindow
 
 class MainWindow(PageWindow):
-    def __init__(self):
+    def __init__(
+        self, 
+        ten_o_heights_window,
+        intervals_window,
+        voices_window
+    ):
         super().__init__()
+        self.ten_o_heights_window = ten_o_heights_window
+        self.intervals_window = intervals_window
+        self.voices_window = voices_window
+
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
         grid_layout = QtWidgets.QGridLayout(central_widget)
@@ -15,12 +24,12 @@ class MainWindow(PageWindow):
         # Add title
         title_label = QtWidgets.QLabel()
         title_label.setText("Welcome to EUTERPE")
-        grid_layout.addWidget(title_label, 0, 0, 1, 2, QtCore.Qt.AlignCenter)
+        grid_layout.addWidget(title_label, 0, 0, 1, 3, QtCore.Qt.AlignCenter)
 
         # Add title
         help_label = QtWidgets.QLabel()
         help_label.setText("What would you like to do today?")
-        grid_layout.addWidget(help_label, 1, 0, 1, 2, QtCore.Qt.AlignCenter)
+        grid_layout.addWidget(help_label, 1, 0, 1, 3, QtCore.Qt.AlignCenter)
 
         # Add button to heights page
         heights_button = QtWidgets.QPushButton("Recognise Heights", self)
@@ -36,10 +45,20 @@ class MainWindow(PageWindow):
             self.make_handleButton("intervals_button")
         )
 
+        # Add button to voices page
+        voices_button = QtWidgets.QPushButton("Recognise Chords and Melodies", self)
+        grid_layout.addWidget(voices_button, 2, 2, alignment=QtCore.Qt.AlignCenter)
+        voices_button.clicked.connect(
+            self.make_handleButton("voices_button")
+        )
+
     def make_handleButton(self, button):
         def handleButton():
             if button == "ten_o_heights_button":
                 self.goto("ten_o_heights_page")
             if button == "intervals_button":
                 self.goto("intervals_page")
+            if button == "voices_button":
+                self.voices_window.reset_labels()
+                self.goto("voices_page")
         return handleButton

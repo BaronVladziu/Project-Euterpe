@@ -5,7 +5,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class PictureLabel(QtWidgets.QLabel):
-    def __init__(self, picture_path:str, parent=None):
+    def __init__(self, picture_path:str, parent=None, max_markers=1):
         super(PictureLabel, self).__init__(parent)
         self.act_pixmap = QtGui.QPixmap(picture_path)
         self.pixmap_path = picture_path
@@ -15,21 +15,47 @@ class PictureLabel(QtWidgets.QLabel):
         self.if_active = False
         self.press_event = None
         self.move_event = None
+        self.markers = list()
+        self.max_markers = max_markers
+        self.label_id = None
 
-    def set_move_event(self, method):
+    def set_move_event(self, method, label_id=None):
         self.move_event = method
+        self.label_id = label_id
 
-    def set_press_event(self, method):
+    def set_press_event(self, method, label_id=None):
         self.press_event = method
+        self.label_id = label_id
+
+    def reset(self):
+        # Remove markers
+        self.markers = list()
+
+        # Reset picture
+        self.act_pixmap = QtGui.QPixmap(self.pixmap_path)
+        self.setPixmap(self.act_pixmap)
+        
+        # Enable interaction
+        self.if_active = True
 
     def mouseMoveEvent(self, event):
         if self.if_active:
-            # Get original picture
+            # Prepare pixmap
             self.act_pixmap = QtGui.QPixmap(self.pixmap_path)
+
+            # Draw markers
+            painter = QtGui.QPainter(self.act_pixmap)
+            for marker in self.markers:
+                painter.setPen(
+                    QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+                )
+                painter.drawLine(
+                    QtCore.QPoint(marker, 0),
+                    QtCore.QPoint(marker, self.act_pixmap.height())
+                )
 
             # Draw main cursor
             x = event.x()
-            painter = QtGui.QPainter(self.act_pixmap)
             painter.setPen(
                 QtGui.QPen(QtCore.Qt.blue, 1, QtCore.Qt.SolidLine)
             )
@@ -44,7 +70,10 @@ class PictureLabel(QtWidgets.QLabel):
 
             # Actvate move_event
             if self.move_event is not None:
-                self.move_event(event.x(), event.y())
+                if self.label_id is not None:
+                    self.move_event(event.x(), event.y(), self.label_id)
+                else:
+                    self.move_event(event.x(), event.y())
 
     def mark_max_error(self, x:float, max_error:float):
         # Draw secondary cursors
@@ -64,14 +93,58 @@ class PictureLabel(QtWidgets.QLabel):
         # Update picture
         self.setPixmap(self.act_pixmap)
 
+    def leaveEvent(self, event):
+        if self.if_active:
+            # Prepare pixmap
+            self.act_pixmap = QtGui.QPixmap(self.pixmap_path)
+
+            # Draw markers
+            painter = QtGui.QPainter(self.act_pixmap)
+            for marker in self.markers:
+                painter.setPen(
+                    QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+                )
+                painter.drawLine(
+                    QtCore.QPoint(marker, 0),
+                    QtCore.QPoint(marker, self.act_pixmap.height())
+                )
+
+            # Update picture
+            self.setPixmap(self.act_pixmap)
+            del painter
 
     def mousePressEvent(self, event):
         if self.if_active:
             # Actvate press_event
             if self.press_event is not None:
-                self.press_event(event.x(), event.y())
+                if self.label_id is not None:
+                    self.press_event(event.x(), event.y(), self.label_id)
+                else:
+                    self.press_event(event.x(), event.y())
 
-    def mark_answer(self, if_correct:bool, x:float):
+    def mark_user_answer(self, x:float):
+        if len(self.markers) < self.max_markers:
+            self.markers.append(x)
+
+            # Prepare pixmap
+            self.act_pixmap = QtGui.QPixmap(self.pixmap_path)
+
+            # Draw markers
+            painter = QtGui.QPainter(self.act_pixmap)
+            for marker in self.markers:
+                painter.setPen(
+                    QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+                )
+                painter.drawLine(
+                    QtCore.QPoint(marker, 0),
+                    QtCore.QPoint(marker, self.act_pixmap.height())
+                )
+
+            # Update picture
+            self.setPixmap(self.act_pixmap)
+            del painter
+
+    def mark_correct_answer(self, if_correct:bool, x:float):
         painter = QtGui.QPainter(self.act_pixmap)
         if if_correct:
             painter.setPen(

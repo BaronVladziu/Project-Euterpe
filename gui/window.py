@@ -7,6 +7,7 @@ from gui.intervals_window import IntervalsWindow, IntervalsGeneratorWindow, Inte
 from gui.main_window import MainWindow
 from gui.page_window import PageWindow
 from gui.ten_o_heights_window import TenOHeightsWindow, TenOHeightsGeneratorWindow, TenOHeightsSettingsWindow
+from gui.voices_window import VoicesWindow, VoicesGeneratorWindow, VoicesSettingsWindow
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -15,8 +16,6 @@ class Window(QtWidgets.QMainWindow):
         self.setCentralWidget(self.stacked_widget)
 
         self.m_pages = {}
-
-        self.register(MainWindow(), "main_page")
 
         ten_o_heights_window = TenOHeightsWindow()
         self.register(
@@ -45,6 +44,26 @@ class Window(QtWidgets.QMainWindow):
             IntervalsSettingsWindow(intervals_window),
             "intervals_settings_page"
         )
+
+        voices_window = VoicesWindow()
+        self.register(
+            voices_window,
+            "voices_page"
+        )
+        self.register(
+            VoicesGeneratorWindow(voices_window),
+            "voices_generator_page"
+        )
+        self.register(
+            VoicesSettingsWindow(voices_window),
+            "voices_settings_page"
+        )
+
+        self.register(MainWindow(
+            ten_o_heights_window,
+            intervals_window,
+            voices_window
+        ), "main_page")
 
         self.goto("main_page")
 

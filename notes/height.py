@@ -36,7 +36,7 @@ class Height:
     def from_name(height_name:str, detune=0) -> 'Height':
         """
         Create new Height object.
-choice
+
         :height_name: Note name in midi notation.
         :detune: Number of cents away from normal frequency.
         """

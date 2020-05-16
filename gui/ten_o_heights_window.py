@@ -9,6 +9,7 @@ from gui.picture_label import PictureLabel
 from notes.height import Height
 from notes.scale import Scale
 from synthesis.noise_synthesizer import NoiseSynthesizer
+from synthesis.saw_synthesizer import SawSynthesizer
 from synthesis.sine_synthesizer import SineSynthesizer
 from synthesis.square_synthesizer import SquareSynthesizer
 from synthesis.triangle_synthesizer import TriangleSynthesizer
@@ -102,7 +103,7 @@ class TenOHeightsWindow(PageWindow):
                 self.goto("main_page")
             elif button == "action_button":
                 if not self.label.if_active:
-                    self.label.if_active = True
+                    self.label.reset()
                     self.state_label.setText("Click near correct value on figure above")
                     self.exercise.generate_new_example()
                     self.exercise.play_example()
@@ -139,7 +140,7 @@ class TenOHeightsWindow(PageWindow):
                 + "c"
             )
         self.action_button.setText("Generate New Interval")
-        self.label.mark_answer(if_correct, true_value/10 + 581)
+        self.label.mark_correct_answer(if_correct, true_value/10 + 581)
             
 
 class TenOHeightsGeneratorWindow(PageWindow):
@@ -167,7 +168,7 @@ class TenOHeightsGeneratorWindow(PageWindow):
             "Square",
             "Noise"
         ])
-        self.synthesizer_type_list.setCurrentIndex(0)
+        self.synthesizer_type_list.setCurrentIndex(2)
         grid_layout.addWidget(
             self.synthesizer_type_list,
             0, 1,

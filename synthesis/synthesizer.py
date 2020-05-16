@@ -4,6 +4,7 @@
 import numpy as np
 import scipy.signal
 
+from notes.chord import Chord
 from notes.height import Height
 from notes.interval import Interval
 from synthesis.sine_synthesizer import SineSynthesizer
@@ -63,6 +64,10 @@ class Synthesizer:
         result[:len(fade_signal)] = result[:len(fade_signal)] * fade_signal
         result[-len(fade_signal):] = result[-len(fade_signal):] * np.flip(fade_signal)
 
+        # Check for clipping
+        if np.max(np.abs(result)) > 1.0:
+            print('[Synthesizer] Clipping warning!')
+
         return result
 
     def generate_height(self, height:Height, time:float) -> np.array:
@@ -89,7 +94,8 @@ class Synthesizer:
         - pause for <pause_time>
         - higher for <play_time>
 
-        :interval: Interval to play.
+        :lower_height: The lower height
+        :higher_height: The higher height
         :play_time: Length of both sounds in seconds.
         :pause_time: Length of pause between sounds in seconds.
 
@@ -114,7 +120,8 @@ class Synthesizer:
         - pause for <pause_time>
         - lower for <play_time>
 
-        :interval: Interval to play.
+        :lower_height: The lower height
+        :higher_height: The higher height
         :play_time: Length of both sounds in seconds.
         :pause_time: Length of pause between sounds in seconds.
 
@@ -139,7 +146,8 @@ class Synthesizer:
         - pause for <pause_time>
         - lower + higher for <play_time>
 
-        :interval: Interval to play.
+        :lower_height: The lower height
+        :higher_height: The higher height
         :play_time: Length of both sounds in seconds.
         :pause_time: Length of pause between sounds in seconds.
 
@@ -170,7 +178,8 @@ class Synthesizer:
         - pause for <pause_time>
         - lower + higher for <play_time>
 
-        :interval: Interval to play.
+        :lower_height: The lower height
+        :higher_height: The higher height
         :play_time: Length of both sounds in seconds.
         :pause_time: Length of pause between sounds in seconds.
 
@@ -198,7 +207,8 @@ class Synthesizer:
         Generate signal of given interval. Play order:
         - lower + higher for <play_time>
 
-        :interval: Interval to play.
+        :lower_height: The lower height
+        :higher_height: The higher height
         :play_time: Length of both sounds in seconds.
 
         :returns: Output signal.
@@ -210,3 +220,201 @@ class Synthesizer:
             higher_height,
             play_time
         )
+
+    def generate_chords_up(
+        self,
+        chords:list,
+        sound_play_time=0.4,
+        sound_pause_time=0,
+        chord_pause_time=0
+    ) -> np.array:
+        """
+        Generate signal of given chords.
+        Heights will be played from the lowest to the highest
+        each for <play_time> seconds
+        with <pause_time> seconds of silence between.
+
+        :chords: List of chords to play.
+        :sound_play_time: Length of each sound in seconds.
+        :sound_pause_time: Length of pause between sounds in seconds.
+        :chord_pause_time: Length of pause between chords in seconds.
+
+        :returns: Output signal.
+        """
+        output = np.zeros(0)
+        for chord in chords:
+            for i in range(chord.get_size()):
+                output = np.concatenate([
+                    output,
+                    self.generate_height(
+                        chord.get_height(i),
+                        sound_play_time
+                    ),
+                    np.zeros(int(
+                        self._sampling_frequency*sound_pause_time
+                    ))
+                ])
+            output = np.concatenate([
+                output,
+                np.zeros(int(
+                    self._sampling_frequency*chord_pause_time
+                ))
+            ])
+        return output
+
+    def generate_chords_down(
+        self,
+        chords:list,
+        sound_play_time=0.4,
+        sound_pause_time=0,
+        chord_pause_time=0
+    ) -> np.array:
+        """
+        Generate signal of given chords.
+        Heights will be played from the highest to the lowest
+        each for <play_time> seconds
+        with <pause_time> seconds of silence between.
+
+        :chords: List of chords to play.
+        :sound_play_time: Length of each sound in seconds.
+        :sound_pause_time: Length of pause between sounds in seconds.
+        :chord_pause_time: Length of pause between chords in seconds.
+
+        :returns: Output signal.
+        """
+        output = np.zeros(0)
+        for chord in chords:
+            for i in range(chord.get_size()):
+                output = np.concatenate([
+                    output,
+                    self.generate_height(
+                        chord.get_height(chord.get_size() - i - 1),
+                        sound_play_time
+                    ),
+                    np.zeros(int(
+                        self._sampling_frequency*sound_pause_time
+                    ))
+                ])
+            output = np.concatenate([
+                output,
+                np.zeros(int(
+                    self._sampling_frequency*chord_pause_time
+                ))
+            ])
+        return output
+
+    def generate_chords_up_hold(
+        self,
+        chords:list,
+        sound_delay=0.4,
+        chord_pause_time=0
+    ) -> np.array:
+        """
+        Generate signal of given chords.
+        Heights will be played from the lowest to the highest
+        adding new one every <sound_delay> seconds.
+
+        :chords: List of chords to play.
+        :sound_delay: Delay of next height.
+        :chord_pause_time: Length of pause between chords in seconds.
+
+        :returns: Output signal.
+        """
+        output = np.zeros(0)
+        for chord in chords:
+            chord_signal = np.zeros(int(
+                self._sampling_frequency*sound_delay*chord.get_size()
+            ))
+            for i in range(chord.get_size()):
+                chord_signal += np.concatenate([
+                    np.zeros(int(
+                        self._sampling_frequency*sound_delay*i
+                    )),
+                    self.generate_height(
+                        chord.get_height(chord.get_size() - i - 1),
+                        sound_delay*(chord.get_size() - i)
+                    )
+                ])
+            output = np.concatenate([
+                output,
+                chord_signal,
+                np.zeros(int(
+                    self._sampling_frequency*chord_pause_time
+                ))
+            ])
+        return output
+
+    def generate_chords_down_hold(
+        self,
+        chords:list,
+        sound_delay=0.4,
+        chord_pause_time=0
+    ) -> np.array:
+        """
+        Generate signal of given chords.
+        Heights will be played from the highest to the lowest
+        adding new one every <sound_delay> seconds.
+
+        :chords: List of chords to play.
+        :sound_delay: Delay of next height.
+        :chord_pause_time: Length of pause between chords in seconds.
+
+        :returns: Output signal.
+        """
+        output = np.zeros(0)
+        for chord in chords:
+            chord_signal = np.zeros(int(
+                self._sampling_frequency*sound_delay*chord.get_size()
+            ))
+            for i in range(chord.get_size()):
+                chord_signal += np.concatenate([
+                    np.zeros(int(
+                        self._sampling_frequency*sound_delay*i
+                    )),
+                    self.generate_height(
+                        chord.get_height(i),
+                        sound_delay*(chord.get_size() - i)
+                    )
+                ])
+            output = np.concatenate([
+                output,
+                chord_signal,
+                np.zeros(int(
+                    self._sampling_frequency*chord_pause_time
+                ))
+            ])
+        return output
+
+    def generate_chords_together(
+        self,
+        chords:list,
+        play_time_per_sound=0.4,
+        chord_pause_time=0
+    ) -> np.array:
+        """
+        Generate signal of given chords.
+        Heights will be played together for <play_time_per_sound>*<chords.get_size()> seconds.
+
+        :chords: List of chords to play.
+        :play_time_per_sound: Length of chord in seconds divided by the number of sounds in a chord.
+
+        :returns: Output signal.
+        """
+        output = np.zeros(0)
+        for chord in chords:
+            chord_signal = np.zeros(int(
+                self._sampling_frequency*play_time_per_sound*chord.get_size()
+            ))
+            for i in range(chord.get_size()):
+                chord_signal += self.generate_height(
+                        chord.get_height(i),
+                        play_time_per_sound*chord.get_size()
+                    )
+            output = np.concatenate([
+                output,
+                chord_signal,
+                np.zeros(int(
+                    self._sampling_frequency*chord_pause_time
+                ))
+            ])
+        return output

@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+from scipy import signal
+
 from notes.height import Height
 from notes.interval import Interval
 
@@ -30,9 +32,10 @@ class TriangleSynthesizer:
                 + ", " \
                 + str(time) \
                 + ")] Frequency of the fundamental frequency must be lower than half of sampling frequency!"
+        signal_length = int(self._sampling_frequency*time)
+        
         time = np.arange(
             int(self._sampling_frequency*time)
         ) / self._sampling_frequency
-        saw_signal = 4*((frequency*time % 0.5) - 0.25)
-        square_signal = np.sign(np.sin(4*np.pi*frequency*time))
-        return volume*saw_signal*square_signal
+        triangle_signal = signal.sawtooth(2*np.pi*frequency*time, 0.5)
+        return volume*triangle_signal
