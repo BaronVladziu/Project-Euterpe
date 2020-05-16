@@ -133,7 +133,7 @@ class IntervalsExercise:
                 '[IntervalsExercise::play_example()] Unknown play type!'
             )
 
-    def answer_example(self, answer) -> (bool, float):
+    def answer_example(self, answer:float) -> (bool, float):
         if self._actual_example.interval.get_cents()\
                 + self._possible_error\
                 >= answer\

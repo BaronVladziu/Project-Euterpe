@@ -3,7 +3,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from exercises.intervals_exercise import IntervalsExercise
+from exercises.voices_exercise import VoicesExercise
 from gui.page_window import PageWindow
 from gui.picture_label import PictureLabel
 from notes.height import Height
@@ -16,23 +16,28 @@ from synthesis.square_synthesizer import SquareSynthesizer
 from synthesis.triangle_synthesizer import TriangleSynthesizer
 
 
-class IntervalsWindow(PageWindow):
+class VoicesWindow(PageWindow):
     def __init__(self):
         super().__init__()
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
         grid_layout = QtWidgets.QGridLayout(central_widget)
 
-        # Add picture
-        self.label = PictureLabel('graphics/intervals1.png')
+        # Add exercise class
+        self.exercise = VoicesExercise(
+            sampling_frequency=44100
+        )
+
+        # Add pictures
+        self.label_widget = QtWidgets.QWidget(self)
         grid_layout.addWidget(
-            self.label,
+            self.label_widget,
             0, 0,
-            1, 6,
+            1, 7,
             QtCore.Qt.AlignCenter
         )
-        self.label.set_move_event(self.move_event)
-        self.label.set_press_event(self.press_event)
+        self.labels = list()
+        self.labels_layout = QtWidgets.QGridLayout(self.label_widget)
 
         # Add button to main page
         back_button = QtWidgets.QPushButton("Back", self)
@@ -56,7 +61,7 @@ class IntervalsWindow(PageWindow):
         )
 
         # Add action button
-        self.action_button = QtWidgets.QPushButton("Generate New Interval", self)
+        self.action_button = QtWidgets.QPushButton("Generate New Example", self)
         grid_layout.addWidget(
             self.action_button,
             1, 3,
@@ -66,11 +71,22 @@ class IntervalsWindow(PageWindow):
             self.make_handleButton("action_button")
         )
 
+        # Add answer button
+        self.answer_button = QtWidgets.QPushButton("Check answer", self)
+        grid_layout.addWidget(
+            self.answer_button,
+            1, 4,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.answer_button.clicked.connect(
+            self.make_handleButton("answer_button")
+        )
+
         # Add button to settings page
         settings_button = QtWidgets.QPushButton("Exercise Settings", self)
         grid_layout.addWidget(
             settings_button,
-            1, 4,
+            1, 5,
             alignment=QtCore.Qt.AlignCenter
         )
         settings_button.clicked.connect(
@@ -81,71 +97,106 @@ class IntervalsWindow(PageWindow):
         generator_button = QtWidgets.QPushButton("Sound Generator", self)
         grid_layout.addWidget(
             generator_button,
-            1, 5,
+            1, 6,
             alignment=QtCore.Qt.AlignCenter
         )
         generator_button.clicked.connect(
             self.make_handleButton("generator_button")
         )
 
-        # Add exercise class
-        self.exercise = IntervalsExercise(
-            sampling_frequency=44100
-        )
+    def reset_labels(self):
+        # Clear old labels
+        for i in reversed(range(self.labels_layout.count())):
+            self.labels_layout.itemAt(i).widget().setParent(None)
+        self.labels = list()
+
+        # Create new labels
+        for i in range(self.exercise.get_voice_length()):
+            self.labels.append(PictureLabel(
+                picture_path='graphics/heights2.png',
+                max_markers=self.exercise.get_chord_size()
+            ))
+
+        # Attach events to labels
+        for i in range(len(self.labels)):
+            self.labels[i].set_move_event(self.move_event, i)
+            self.labels[i].set_press_event(self.press_event, i)
+        
+        # Attach labels to layout
+        for i in range(len(self.labels)):
+            self.labels_layout.addWidget(
+                self.labels[i],
+                i, 0,
+                alignment=QtCore.Qt.AlignCenter
+            )
 
     def make_handleButton(self, button):
         def handleButton():
             if button == "settings_button":
-                self.goto("intervals_settings_page")
+                self.goto("voices_settings_page")
             elif button == "generator_button":
-                self.goto("intervals_generator_page")
+                self.goto("voices_generator_page")
             elif button == "back_button":
-                self.label.if_active = False
+                self.labels = list()
                 self.goto("main_page")
             elif button == "action_button":
-                if not self.label.if_active:
-                    self.label.reset()
-                    self.state_label.setText("Click near correct value on figure above")
+                if not self.labels[0].if_active:
+                    # Reset labels
+                    for label in self.labels:
+                        label.reset()
+                    self.state_label.setText("Click near correct values on figure above")
+
+                    # Create new example
                     self.exercise.generate_new_example()
+                    first_note = self.exercise.get_first_note()
+                    if first_note is not None:
+                        self.labels[0].mark_user_answer(first_note.get_cents_from_a()/4 + 835)
                     self.exercise.play_example()
                     self.action_button.setText("Listen Again")
-                elif self.label.if_active:
+                elif self.labels[0].if_active:
                     self.exercise.play_example()
+            elif button == "answer_button":
+                if self.labels[0].if_active:
+                    # Get label markers
+                    user_answers = list()
+                    for label in self.labels:
+                        user_answers.append(label.markers)
+
+                    # Convert to cents
+                    for i in range(len(user_answers)):
+                        for j in range(len(user_answers[i])):
+                            user_answers[i][j] = 4*(user_answers[i][j] - 835)
+
+                    # Get real answers
+                    real_answer = self.exercise.answer_example(
+                        user_answers
+                    )
+
+                    # Mark them on labels
+                    for i in range(real_answer.example.get_voice_length()):
+                        for j in range(real_answer.example.get_chord_size()):
+                            if_correct, true_value = real_answer.get_height(i, j)
+                            self.labels[i].mark_correct_answer(
+                                if_correct,
+                                true_value.get_cents_from_a()/4 + 835
+                            )
+                    self.state_label.setText("Press button to generate new example -->")
+                    self.action_button.setText("Generate New Example")
         return handleButton
 
-    def move_event(self, x, y):
-        self.label.mark_max_error(x, self.exercise.get_possible_error()/2)
-
-    def press_event(self, x, y):
-        answer = 2*(x - 10)
-        if_correct, true_value = self.exercise.answer_example(
-            answer
+    def move_event(self, x, y, label_id):
+        self.labels[label_id].mark_max_error(
+            x,
+            self.exercise.get_possible_error()/4
         )
-        if if_correct:
-            self.state_label.setText(
-                "CORRECT! Pressed: "\
-                + str(answer)\
-                + "±"\
-                + str(int(self.exercise.get_possible_error()))\
-                + "c, Real value: "\
-                + str(int(true_value))
-            )
-        else:
-            self.state_label.setText(
-                "WRONG :c Pressed: "\
-                + str(answer)\
-                + "±"\
-                + str(int(self.exercise.get_possible_error()))\
-                + "c, Real value: "\
-                + str(int(true_value))\
-                + "c"
-            )
-        self.action_button.setText("Generate New Interval")
-        self.label.mark_correct_answer(if_correct, true_value/2 + 10)
+
+    def press_event(self, x, y, label_id):
+        # answer = 4*(x - 835)
+        self.labels[label_id].mark_user_answer(x)
 
 
-class IntervalsGeneratorWindow(PageWindow):
-    def __init__(self, parent:IntervalsWindow):
+class VoicesGeneratorWindow(PageWindow):
+    def __init__(self, parent:VoicesWindow):
         super().__init__()
         self.parent = parent
 
@@ -225,7 +276,7 @@ class IntervalsGeneratorWindow(PageWindow):
             "Downwards with hold",
             "Together"
         ])
-        self.play_type_list.setCurrentIndex(0)
+        self.play_type_list.setCurrentIndex(4)
         grid_layout.addWidget(
             self.play_type_list,
             2, 1,
@@ -236,7 +287,7 @@ class IntervalsGeneratorWindow(PageWindow):
         )
         self.play_type_changed()
 
-        # Add button to intervals page
+        # Add button to voices page
         back_button = QtWidgets.QPushButton("Back", self)
         grid_layout.addWidget(
             back_button,
@@ -271,7 +322,7 @@ class IntervalsGeneratorWindow(PageWindow):
             )
         else:
             raise RuntimeError(
-                '[IntervalsGeneratorWindow::synthesizer_type_changed()] Unknown synthesizer "'\
+                '[VoicesGeneratorWindow::synthesizer_type_changed()] Unknown synthesizer "'\
                 + self.synthesizer_type_list.currentText()\
                 + '"!'
             )
@@ -289,12 +340,12 @@ class IntervalsGeneratorWindow(PageWindow):
     def make_handleButton(self, button):
         def handleButton():
             if button == "back_button":
-                self.goto("intervals_page")
+                self.goto("voices_page")
         return handleButton
 
 
-class IntervalsSettingsWindow(PageWindow):
-    def __init__(self, parent:IntervalsWindow):
+class VoicesSettingsWindow(PageWindow):
+    def __init__(self, parent:VoicesWindow):
         super().__init__()
         self.parent = parent
 
@@ -302,12 +353,66 @@ class IntervalsSettingsWindow(PageWindow):
         self.setCentralWidget(central_widget)
         grid_layout = QtWidgets.QGridLayout(central_widget)
 
+        # Add chord size setting
+        self.chord_size_label = QtWidgets.QLabel()
+        self.chord_size_label.setText("Number of sounds in a chord:")
+        grid_layout.addWidget(
+            self.chord_size_label,
+            0, 0,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.chord_size_list = QtWidgets.QComboBox()
+        self.chord_size_list.addItems([
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+        ])
+        self.chord_size_list.setCurrentIndex(1)
+        grid_layout.addWidget(
+            self.chord_size_list,
+            0, 1,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.chord_size_list.currentIndexChanged.connect(
+            self.chord_size_changed
+        )
+        self.chord_size_changed()
+
+        # Add voice length setting
+        self.voice_length_label = QtWidgets.QLabel()
+        self.voice_length_label.setText("Number of chords:")
+        grid_layout.addWidget(
+            self.voice_length_label,
+            1, 0,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.voice_length_list = QtWidgets.QComboBox()
+        self.voice_length_list.addItems([
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+        ])
+        self.voice_length_list.setCurrentIndex(1)
+        grid_layout.addWidget(
+            self.voice_length_list,
+            1, 1,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.voice_length_list.currentIndexChanged.connect(
+            self.voice_length_changed
+        )
+        self.voice_length_changed()
+
         # Add scale setting
         self.scale_label = QtWidgets.QLabel()
         self.scale_label.setText("Scale:")
         grid_layout.addWidget(
             self.scale_label,
-            1, 0,
+            2, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.scale_list = QtWidgets.QComboBox()
@@ -323,7 +428,7 @@ class IntervalsSettingsWindow(PageWindow):
         self.scale_list.setCurrentIndex(0)
         grid_layout.addWidget(
             self.scale_list,
-            1, 1,
+            2, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.scale_list.currentIndexChanged.connect(
@@ -336,24 +441,20 @@ class IntervalsSettingsWindow(PageWindow):
         self.lowest_height_label.setText("Lowest Height:")
         grid_layout.addWidget(
             self.lowest_height_label,
-            2, 0,
+            3, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.lowest_height_list = QtWidgets.QComboBox()
         self.lowest_height_list.addItems([
-            "C0",
-            "C1",
             "C2",
             "C3",
             "C4",
-            "C5",
-            "C6",
-            "C7"
+            "C5"
         ])
-        self.lowest_height_list.setCurrentIndex(3)
+        self.lowest_height_list.setCurrentIndex(0)
         grid_layout.addWidget(
             self.lowest_height_list,
-            2, 1,
+            3, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.lowest_height_list.currentIndexChanged.connect(
@@ -366,24 +467,20 @@ class IntervalsSettingsWindow(PageWindow):
         self.highest_height_label.setText("Highest Height:")
         grid_layout.addWidget(
             self.highest_height_label,
-            3, 0,
+            4, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.highest_height_list = QtWidgets.QComboBox()
         self.highest_height_list.addItems([
-            "C1",
-            "C2",
             "C3",
             "C4",
             "C5",
-            "C6",
-            "C7",
-            "C8"
+            "C6"
         ])
-        self.highest_height_list.setCurrentIndex(4)
+        self.highest_height_list.setCurrentIndex(3)
         grid_layout.addWidget(
             self.highest_height_list,
-            3, 1,
+            4, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.highest_height_list.currentIndexChanged.connect(
@@ -393,24 +490,23 @@ class IntervalsSettingsWindow(PageWindow):
 
         # Add smallest interval setting
         self.smallest_interval_label = QtWidgets.QLabel()
-        self.smallest_interval_label.setText("Smallest Interval:")
+        self.smallest_interval_label.setText("Smallest Interval in Chord:")
         grid_layout.addWidget(
             self.smallest_interval_label,
-            4, 0,
+            5, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.smallest_interval_list = QtWidgets.QComboBox()
         self.smallest_interval_list.addItems([
-            "0",
+            "20",
             "400",
             "700",
-            "1200",
-            "1900",
+            "1200"
         ])
         self.smallest_interval_list.setCurrentIndex(0)
         grid_layout.addWidget(
             self.smallest_interval_list,
-            4, 1,
+            5, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.smallest_interval_list.currentIndexChanged.connect(
@@ -420,10 +516,10 @@ class IntervalsSettingsWindow(PageWindow):
 
         # Add largest interval setting
         self.largest_interval_label = QtWidgets.QLabel()
-        self.largest_interval_label.setText("Largest Interval:")
+        self.largest_interval_label.setText("Largest Interval in Chord:")
         grid_layout.addWidget(
             self.largest_interval_label,
-            5, 0,
+            6, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.largest_interval_list = QtWidgets.QComboBox()
@@ -432,12 +528,14 @@ class IntervalsSettingsWindow(PageWindow):
             "700",
             "1200",
             "1900",
-            "2400"
+            "2400",
+            "3600",
+            "4800"
         ])
-        self.largest_interval_list.setCurrentIndex(2)
+        self.largest_interval_list.setCurrentIndex(6)
         grid_layout.addWidget(
             self.largest_interval_list,
-            5, 1,
+            6, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.largest_interval_list.currentIndexChanged.connect(
@@ -450,7 +548,7 @@ class IntervalsSettingsWindow(PageWindow):
         self.possible_detune_label.setText("Possible Detune:")
         grid_layout.addWidget(
             self.possible_detune_label,
-            6, 0,
+            7, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_detune_list = QtWidgets.QComboBox()
@@ -480,7 +578,7 @@ class IntervalsSettingsWindow(PageWindow):
         self.possible_detune_list.setCurrentIndex(1)
         grid_layout.addWidget(
             self.possible_detune_list,
-            6, 1,
+            7, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_detune_list.currentIndexChanged.connect(
@@ -493,7 +591,7 @@ class IntervalsSettingsWindow(PageWindow):
         self.possible_error_label.setText("Possible Error:")
         grid_layout.addWidget(
             self.possible_error_label,
-            7, 0,
+            8, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_error_list = QtWidgets.QComboBox()
@@ -504,14 +602,12 @@ class IntervalsSettingsWindow(PageWindow):
             "50",
             "100",
             "200",
-            "500",
-            "1000",
-            "2000"
+            "500"
         ])
         self.possible_error_list.setCurrentIndex(2)
         grid_layout.addWidget(
             self.possible_error_list,
-            7, 1,
+            8, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.possible_error_list.currentIndexChanged.connect(
@@ -519,17 +615,52 @@ class IntervalsSettingsWindow(PageWindow):
         )
         self.possible_error_changed()
 
-        # Add button to intervals page
+        # Add if first note provided
+        self.if_first_note_provided_label = QtWidgets.QLabel()
+        self.if_first_note_provided_label.setText("Is First Note Provided:")
+        grid_layout.addWidget(
+            self.if_first_note_provided_label,
+            9, 0,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.if_first_note_provided_list = QtWidgets.QComboBox()
+        self.if_first_note_provided_list.addItems([
+            "True",
+            "False"
+        ])
+        self.if_first_note_provided_list.setCurrentIndex(0)
+        grid_layout.addWidget(
+            self.if_first_note_provided_list,
+            9, 1,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.if_first_note_provided_list.currentIndexChanged.connect(
+            self.if_first_note_provided_changed
+        )
+        self.if_first_note_provided_changed()
+
+        # Add button to voices page
         back_button = QtWidgets.QPushButton("Back", self)
         grid_layout.addWidget(
             back_button,
-            8, 0,
+            10, 0,
             1, 2,
             alignment=QtCore.Qt.AlignCenter
         )
         back_button.clicked.connect(
             self.make_handleButton("back_button")
         )
+
+    def chord_size_changed(self):
+        self.parent.exercise.set_chord_size(
+            int(self.chord_size_list.currentText())
+        )
+
+    def voice_length_changed(self):
+        self.parent.exercise.set_voice_length(
+            int(self.voice_length_list.currentText())
+        )
+        self.parent.reset_labels()
 
     def scale_changed(self):
         self.parent.exercise.set_scale(
@@ -570,8 +701,14 @@ class IntervalsSettingsWindow(PageWindow):
             int(self.possible_error_list.currentText())
         )
 
+    def if_first_note_provided_changed(self):
+        self.parent.exercise.set_if_first_note_provided(
+            bool(self.if_first_note_provided_list.currentText())
+        )
+
     def make_handleButton(self, button):
         def handleButton():
             if button == "back_button":
-                self.goto("intervals_page")
+                self.parent.reset_labels()
+                self.goto("voices_page")
         return handleButton
