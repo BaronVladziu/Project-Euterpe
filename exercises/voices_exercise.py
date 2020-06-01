@@ -58,6 +58,7 @@ class VoicesExercise:
     def __init__(self, sampling_frequency:int):
         # exercise settings
         self._sampling_frequency = sampling_frequency
+        self._volume = None
         self._play_type = None
         self._scale = None
         self._lowest_height = None
@@ -79,6 +80,10 @@ class VoicesExercise:
         self._sampling_frequency = sampling_frequency
         self._synthesizer.set_sampling_frequency(sampling_frequency)
         self._player.set_sampling_frequency(sampling_frequency)
+
+    def set_volume(self, volume:float):
+        self._volume = volume
+        self._synthesizer.set_volume(volume)
 
     def set_play_type(self, play_type:str):
         self._play_type = play_type

@@ -12,6 +12,7 @@ class TenOHeightsExercise:
     def __init__(self, sampling_frequency:int):
         # exercise settings
         self._sampling_frequency = sampling_frequency
+        self._volume = None
         self._scale = None
         self._lowest_height = None
         self._highest_height = None
@@ -27,6 +28,10 @@ class TenOHeightsExercise:
         self._sampling_frequency = sampling_frequency
         self._synthesizer.set_sampling_frequency(sampling_frequency)
         self._player.set_sampling_frequency(sampling_frequency)
+
+    def set_volume(self, volume:float):
+        self._volume = volume
+        self._synthesizer.set_volume(volume)
 
     def set_scale(self, scale:Scale):
         self._scale = scale

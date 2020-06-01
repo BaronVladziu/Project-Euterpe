@@ -103,6 +103,13 @@ class VoicesWindow(PageWindow):
         generator_button.clicked.connect(
             self.make_handleButton("generator_button")
         )
+    
+    def reset_window(self):
+        self.state_label.setText("Press button to generate new example -->")
+        self.action_button.setText("Generate New Example")
+        self.reset_labels()
+        for label in self.labels:
+            label.if_active = False
 
     def reset_labels(self):
         # Clear old labels
@@ -120,7 +127,8 @@ class VoicesWindow(PageWindow):
         # Attach events to labels
         for i in range(len(self.labels)):
             self.labels[i].set_move_event(self.move_event, i)
-            self.labels[i].set_press_event(self.press_event, i)
+            self.labels[i].set_left_click_event(self.left_click_event, i)
+            self.labels[i].set_right_click_event(self.right_click_event, i)
         
         # Attach labels to layout
         for i in range(len(self.labels)):
@@ -144,13 +152,17 @@ class VoicesWindow(PageWindow):
                     # Reset labels
                     for label in self.labels:
                         label.reset()
-                    self.state_label.setText("Click near correct values on figure above")
+                    self.state_label.setText(
+                        "Click near correct values on figure above"
+                    )
 
                     # Create new example
                     self.exercise.generate_new_example()
                     first_note = self.exercise.get_first_note()
                     if first_note is not None:
-                        self.labels[0].mark_user_answer(first_note.get_cents_from_a()/4 + 835)
+                        self.labels[0].add_unerasable_marker(
+                            first_note.get_cents_from_a()/4 + 835
+                        )
                     self.exercise.play_example()
                     self.action_button.setText("Listen Again")
                 elif self.labels[0].if_active:
@@ -180,7 +192,9 @@ class VoicesWindow(PageWindow):
                                 if_correct,
                                 true_value.get_cents_from_a()/4 + 835
                             )
-                    self.state_label.setText("Press button to generate new example -->")
+                    self.state_label.setText(
+                        "Press button to generate new example -->"
+                    )
                     self.action_button.setText("Generate New Example")
         return handleButton
 
@@ -190,9 +204,16 @@ class VoicesWindow(PageWindow):
             self.exercise.get_possible_error()/4
         )
 
-    def press_event(self, x, y, label_id):
+    def left_click_event(self, x, y, label_id):
         # answer = 4*(x - 835)
         self.labels[label_id].mark_user_answer(x)
+
+    def right_click_event(self, x, y, label_id):
+        # answer = 4*(x - 835)
+        self.labels[label_id].erase_user_answer(
+            x,
+            self.exercise.get_possible_error()/4
+        )
 
 
 class VoicesGeneratorWindow(PageWindow):
@@ -204,12 +225,45 @@ class VoicesGeneratorWindow(PageWindow):
         self.setCentralWidget(central_widget)
         grid_layout = QtWidgets.QGridLayout(central_widget)
 
+        # Add volume setting
+        self.volume_label = QtWidgets.QLabel()
+        self.volume_label.setText("Volume:")
+        grid_layout.addWidget(
+            self.volume_label,
+            0, 0,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.volume_list = QtWidgets.QComboBox()
+        self.volume_list.addItems([
+            "0.0",
+            "0.1",
+            "0.2",
+            "0.3",
+            "0.4",
+            "0.5",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "1.0"
+        ])
+        self.volume_list.setCurrentIndex(10)
+        grid_layout.addWidget(
+            self.volume_list,
+            0, 1,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.volume_list.currentIndexChanged.connect(
+            self.volume_changed
+        )
+        self.volume_changed()
+
         # Add synthesizer type setting
         self.synthesizer_type_label = QtWidgets.QLabel()
         self.synthesizer_type_label.setText("Synthesizer Type:")
         grid_layout.addWidget(
             self.synthesizer_type_label,
-            0, 0,
+            1, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.synthesizer_type_list = QtWidgets.QComboBox()
@@ -223,7 +277,7 @@ class VoicesGeneratorWindow(PageWindow):
         self.synthesizer_type_list.setCurrentIndex(2)
         grid_layout.addWidget(
             self.synthesizer_type_list,
-            0, 1,
+            1, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.synthesizer_type_list.currentIndexChanged.connect(
@@ -236,7 +290,7 @@ class VoicesGeneratorWindow(PageWindow):
         self.sampling_frequency_label.setText("Sampling Frequency:")
         grid_layout.addWidget(
             self.sampling_frequency_label,
-            1, 0,
+            2, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.sampling_frequency_list = QtWidgets.QComboBox()
@@ -252,7 +306,7 @@ class VoicesGeneratorWindow(PageWindow):
         self.sampling_frequency_list.setCurrentIndex(3)
         grid_layout.addWidget(
             self.sampling_frequency_list,
-            1, 1,
+            2, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.sampling_frequency_list.currentIndexChanged.connect(
@@ -265,7 +319,7 @@ class VoicesGeneratorWindow(PageWindow):
         self.play_type_label.setText("Play Type:")
         grid_layout.addWidget(
             self.play_type_label,
-            2, 0,
+            3, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.play_type_list = QtWidgets.QComboBox()
@@ -279,7 +333,7 @@ class VoicesGeneratorWindow(PageWindow):
         self.play_type_list.setCurrentIndex(4)
         grid_layout.addWidget(
             self.play_type_list,
-            2, 1,
+            3, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.play_type_list.currentIndexChanged.connect(
@@ -291,12 +345,17 @@ class VoicesGeneratorWindow(PageWindow):
         back_button = QtWidgets.QPushButton("Back", self)
         grid_layout.addWidget(
             back_button,
-            3, 0,
+            4, 0,
             1, 2,
             alignment=QtCore.Qt.AlignCenter
         )
         back_button.clicked.connect(
             self.make_handleButton("back_button")
+        )
+
+    def volume_changed(self):
+        self.parent.exercise.set_volume(
+            float(self.volume_list.currentText())
         )
 
     def synthesizer_type_changed(self):
@@ -625,8 +684,8 @@ class VoicesSettingsWindow(PageWindow):
         )
         self.if_first_note_provided_list = QtWidgets.QComboBox()
         self.if_first_note_provided_list.addItems([
-            "True",
-            "False"
+            "Yes",
+            "No"
         ])
         self.if_first_note_provided_list.setCurrentIndex(0)
         grid_layout.addWidget(
@@ -660,7 +719,6 @@ class VoicesSettingsWindow(PageWindow):
         self.parent.exercise.set_voice_length(
             int(self.voice_length_list.currentText())
         )
-        self.parent.reset_labels()
 
     def scale_changed(self):
         self.parent.exercise.set_scale(
@@ -702,13 +760,21 @@ class VoicesSettingsWindow(PageWindow):
         )
 
     def if_first_note_provided_changed(self):
-        self.parent.exercise.set_if_first_note_provided(
-            bool(self.if_first_note_provided_list.currentText())
-        )
+        if self.if_first_note_provided_list.currentText() == 'Yes':
+            self.parent.exercise.set_if_first_note_provided(True)
+        elif self.if_first_note_provided_list.currentText() == 'No':
+            self.parent.exercise.set_if_first_note_provided(False)
+        else:
+            raise ValueError(
+                '[VoicesSettingsWindow::if_first_note_provided_changed()'\
+                + 'Unknown boolean value: '\
+                + self.if_first_note_provided_list.currentText()\
+                + ' !'
+            )
 
     def make_handleButton(self, button):
         def handleButton():
             if button == "back_button":
-                self.parent.reset_labels()
+                self.parent.reset_window()
                 self.goto("voices_page")
         return handleButton
