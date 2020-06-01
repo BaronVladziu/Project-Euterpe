@@ -225,12 +225,45 @@ class VoicesGeneratorWindow(PageWindow):
         self.setCentralWidget(central_widget)
         grid_layout = QtWidgets.QGridLayout(central_widget)
 
+        # Add volume setting
+        self.volume_label = QtWidgets.QLabel()
+        self.volume_label.setText("Volume:")
+        grid_layout.addWidget(
+            self.volume_label,
+            0, 0,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.volume_list = QtWidgets.QComboBox()
+        self.volume_list.addItems([
+            "0.0",
+            "0.1",
+            "0.2",
+            "0.3",
+            "0.4",
+            "0.5",
+            "0.6",
+            "0.7",
+            "0.8",
+            "0.9",
+            "1.0"
+        ])
+        self.volume_list.setCurrentIndex(10)
+        grid_layout.addWidget(
+            self.volume_list,
+            0, 1,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.volume_list.currentIndexChanged.connect(
+            self.volume_changed
+        )
+        self.volume_changed()
+
         # Add synthesizer type setting
         self.synthesizer_type_label = QtWidgets.QLabel()
         self.synthesizer_type_label.setText("Synthesizer Type:")
         grid_layout.addWidget(
             self.synthesizer_type_label,
-            0, 0,
+            1, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.synthesizer_type_list = QtWidgets.QComboBox()
@@ -244,7 +277,7 @@ class VoicesGeneratorWindow(PageWindow):
         self.synthesizer_type_list.setCurrentIndex(2)
         grid_layout.addWidget(
             self.synthesizer_type_list,
-            0, 1,
+            1, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.synthesizer_type_list.currentIndexChanged.connect(
@@ -257,7 +290,7 @@ class VoicesGeneratorWindow(PageWindow):
         self.sampling_frequency_label.setText("Sampling Frequency:")
         grid_layout.addWidget(
             self.sampling_frequency_label,
-            1, 0,
+            2, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.sampling_frequency_list = QtWidgets.QComboBox()
@@ -273,7 +306,7 @@ class VoicesGeneratorWindow(PageWindow):
         self.sampling_frequency_list.setCurrentIndex(3)
         grid_layout.addWidget(
             self.sampling_frequency_list,
-            1, 1,
+            2, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.sampling_frequency_list.currentIndexChanged.connect(
@@ -286,7 +319,7 @@ class VoicesGeneratorWindow(PageWindow):
         self.play_type_label.setText("Play Type:")
         grid_layout.addWidget(
             self.play_type_label,
-            2, 0,
+            3, 0,
             alignment=QtCore.Qt.AlignCenter
         )
         self.play_type_list = QtWidgets.QComboBox()
@@ -300,7 +333,7 @@ class VoicesGeneratorWindow(PageWindow):
         self.play_type_list.setCurrentIndex(4)
         grid_layout.addWidget(
             self.play_type_list,
-            2, 1,
+            3, 1,
             alignment=QtCore.Qt.AlignCenter
         )
         self.play_type_list.currentIndexChanged.connect(
@@ -312,12 +345,17 @@ class VoicesGeneratorWindow(PageWindow):
         back_button = QtWidgets.QPushButton("Back", self)
         grid_layout.addWidget(
             back_button,
-            3, 0,
+            4, 0,
             1, 2,
             alignment=QtCore.Qt.AlignCenter
         )
         back_button.clicked.connect(
             self.make_handleButton("back_button")
+        )
+
+    def volume_changed(self):
+        self.parent.exercise.set_volume(
+            float(self.volume_list.currentText())
         )
 
     def synthesizer_type_changed(self):

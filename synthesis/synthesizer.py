@@ -23,12 +23,23 @@ class Synthesizer:
         """
         self._sampling_frequency = sampling_frequency
         self._base_synthesizer = base_synthesizer(sampling_frequency)
+        self._volume = 1.0
 
     def set_sampling_frequency(self, sampling_frequency:int):
         self._sampling_frequency = sampling_frequency
         self._base_synthesizer = self._base_synthesizer.__class__(
             sampling_frequency
         )
+
+    def set_volume(self, volume:float):
+        if 0.0 <= volume <= 1.0:
+            self._volume = volume
+        else:
+            raise ValueError(
+                '[Synthesizer::set_volume('\
+                + str(volume)\
+                + ')] Volume value must be between 1 and 0!'
+            )
 
     def generate_frequency(self, frequency:float, time:float, antialiasing_order=20) -> np.array:
         """
@@ -63,6 +74,9 @@ class Synthesizer:
         ])
         result[:len(fade_signal)] = result[:len(fade_signal)] * fade_signal
         result[-len(fade_signal):] = result[-len(fade_signal):] * np.flip(fade_signal)
+
+        # Apply volume
+        result *= self._volume
 
         # Check for clipping
         if np.max(np.abs(result)) > 1.0:
