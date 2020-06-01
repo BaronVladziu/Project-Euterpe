@@ -13,8 +13,10 @@ class PictureLabel(QtWidgets.QLabel):
         self.setMouseTracking(True)
 
         self.if_active = False
-        self.press_event = None
+        self.left_click_event = None
+        self.right_click_event = None
         self.move_event = None
+        self.unerasable_markers = list()
         self.markers = list()
         self.max_markers = max_markers
         self.label_id = None
@@ -23,12 +25,17 @@ class PictureLabel(QtWidgets.QLabel):
         self.move_event = method
         self.label_id = label_id
 
-    def set_press_event(self, method, label_id=None):
-        self.press_event = method
+    def set_left_click_event(self, method, label_id=None):
+        self.left_click_event = method
+        self.label_id = label_id
+
+    def set_right_click_event(self, method, label_id=None):
+        self.right_click_event = method
         self.label_id = label_id
 
     def reset(self):
         # Remove markers
+        self.unerasable_markers = list()
         self.markers = list()
 
         # Reset picture
@@ -37,7 +44,7 @@ class PictureLabel(QtWidgets.QLabel):
         
         # Enable interaction
         self.if_active = True
-
+            
     def mouseMoveEvent(self, event):
         if self.if_active:
             # Prepare pixmap
@@ -46,6 +53,14 @@ class PictureLabel(QtWidgets.QLabel):
             # Draw markers
             painter = QtGui.QPainter(self.act_pixmap)
             for marker in self.markers:
+                painter.setPen(
+                    QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+                )
+                painter.drawLine(
+                    QtCore.QPoint(marker, 0),
+                    QtCore.QPoint(marker, self.act_pixmap.height())
+                )
+            for marker in self.unerasable_markers:
                 painter.setPen(
                     QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
                 )
@@ -108,6 +123,14 @@ class PictureLabel(QtWidgets.QLabel):
                     QtCore.QPoint(marker, 0),
                     QtCore.QPoint(marker, self.act_pixmap.height())
                 )
+            for marker in self.unerasable_markers:
+                painter.setPen(
+                    QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+                )
+                painter.drawLine(
+                    QtCore.QPoint(marker, 0),
+                    QtCore.QPoint(marker, self.act_pixmap.height())
+                )
 
             # Update picture
             self.setPixmap(self.act_pixmap)
@@ -115,15 +138,29 @@ class PictureLabel(QtWidgets.QLabel):
 
     def mousePressEvent(self, event):
         if self.if_active:
-            # Actvate press_event
-            if self.press_event is not None:
-                if self.label_id is not None:
-                    self.press_event(event.x(), event.y(), self.label_id)
-                else:
-                    self.press_event(event.x(), event.y())
+            # Left click
+            if event.button() == QtCore.Qt.LeftButton:
+                # Actvate left_click_event
+                if self.left_click_event is not None:
+                    if self.label_id is not None:
+                        self.left_click_event(event.x(), event.y(), self.label_id)
+                    else:
+                        self.left_click_event(event.x(), event.y())
+
+            # Right click
+            elif event.button() == QtCore.Qt.RightButton:
+                # Actvate right_click_event
+                if self.right_click_event is not None:
+                    if self.label_id is not None:
+                        self.right_click_event(event.x(), event.y(), self.label_id)
+                    else:
+                        self.right_click_event(event.x(), event.y())
+
+    def add_unerasable_marker(self, x:float):
+        self.unerasable_markers.append(x)
 
     def mark_user_answer(self, x:float):
-        if len(self.markers) < self.max_markers:
+        if len(self.markers) + len(self.unerasable_markers) < self.max_markers:
             self.markers.append(x)
 
             # Prepare pixmap
@@ -139,10 +176,52 @@ class PictureLabel(QtWidgets.QLabel):
                     QtCore.QPoint(marker, 0),
                     QtCore.QPoint(marker, self.act_pixmap.height())
                 )
+            for marker in self.unerasable_markers:
+                painter.setPen(
+                    QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+                )
+                painter.drawLine(
+                    QtCore.QPoint(marker, 0),
+                    QtCore.QPoint(marker, self.act_pixmap.height())
+                )
 
             # Update picture
             self.setPixmap(self.act_pixmap)
             del painter
+
+    def erase_user_answer(self, x:float, margin:float):
+        # Erase all markers close to pressed point
+        new_markers = list()
+        for marker in self.markers:
+            if x - margin > marker or marker > x + margin:
+                new_markers.append(marker)
+        self.markers = new_markers
+
+        # Prepare pixmap
+        self.act_pixmap = QtGui.QPixmap(self.pixmap_path)
+
+        # Draw markers
+        painter = QtGui.QPainter(self.act_pixmap)
+        for marker in self.markers:
+            painter.setPen(
+                QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+            )
+            painter.drawLine(
+                QtCore.QPoint(marker, 0),
+                QtCore.QPoint(marker, self.act_pixmap.height())
+            )
+        for marker in self.unerasable_markers:
+            painter.setPen(
+                QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+            )
+            painter.drawLine(
+                QtCore.QPoint(marker, 0),
+                QtCore.QPoint(marker, self.act_pixmap.height())
+            )
+
+        # Update picture
+        self.setPixmap(self.act_pixmap)
+        del painter
 
     def mark_correct_answer(self, if_correct:bool, x:float):
         painter = QtGui.QPainter(self.act_pixmap)

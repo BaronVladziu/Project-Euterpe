@@ -31,7 +31,7 @@ class TenOHeightsWindow(PageWindow):
             QtCore.Qt.AlignCenter
         )
         self.label.set_move_event(self.move_event)
-        self.label.set_press_event(self.press_event)
+        self.label.set_left_click_event(self.press_event)
 
         # Add button to main page
         back_button = QtWidgets.QPushButton("Back", self)

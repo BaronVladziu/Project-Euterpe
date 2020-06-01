@@ -120,7 +120,8 @@ class VoicesWindow(PageWindow):
         # Attach events to labels
         for i in range(len(self.labels)):
             self.labels[i].set_move_event(self.move_event, i)
-            self.labels[i].set_press_event(self.press_event, i)
+            self.labels[i].set_left_click_event(self.left_click_event, i)
+            self.labels[i].set_right_click_event(self.right_click_event, i)
         
         # Attach labels to layout
         for i in range(len(self.labels)):
@@ -144,13 +145,17 @@ class VoicesWindow(PageWindow):
                     # Reset labels
                     for label in self.labels:
                         label.reset()
-                    self.state_label.setText("Click near correct values on figure above")
+                    self.state_label.setText(
+                        "Click near correct values on figure above"
+                    )
 
                     # Create new example
                     self.exercise.generate_new_example()
                     first_note = self.exercise.get_first_note()
                     if first_note is not None:
-                        self.labels[0].mark_user_answer(first_note.get_cents_from_a()/4 + 835)
+                        self.labels[0].add_unerasable_marker(
+                            first_note.get_cents_from_a()/4 + 835
+                        )
                     self.exercise.play_example()
                     self.action_button.setText("Listen Again")
                 elif self.labels[0].if_active:
@@ -180,7 +185,9 @@ class VoicesWindow(PageWindow):
                                 if_correct,
                                 true_value.get_cents_from_a()/4 + 835
                             )
-                    self.state_label.setText("Press button to generate new example -->")
+                    self.state_label.setText(
+                        "Press button to generate new example -->"
+                    )
                     self.action_button.setText("Generate New Example")
         return handleButton
 
@@ -190,9 +197,16 @@ class VoicesWindow(PageWindow):
             self.exercise.get_possible_error()/4
         )
 
-    def press_event(self, x, y, label_id):
+    def left_click_event(self, x, y, label_id):
         # answer = 4*(x - 835)
         self.labels[label_id].mark_user_answer(x)
+
+    def right_click_event(self, x, y, label_id):
+        # answer = 4*(x - 835)
+        self.labels[label_id].erase_user_answer(
+            x,
+            self.exercise.get_possible_error()/4
+        )
 
 
 class VoicesGeneratorWindow(PageWindow):
