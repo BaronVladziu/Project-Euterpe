@@ -157,7 +157,34 @@ class PictureLabel(QtWidgets.QLabel):
                         self.right_click_event(event.x(), event.y())
 
     def add_unerasable_marker(self, x:float):
+        # Add marker
         self.unerasable_markers.append(x)
+
+        # Prepare pixmap
+        self.act_pixmap = QtGui.QPixmap(self.pixmap_path)
+
+        # Draw markers
+        painter = QtGui.QPainter(self.act_pixmap)
+        for marker in self.markers:
+            painter.setPen(
+                QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+            )
+            painter.drawLine(
+                QtCore.QPoint(marker, 0),
+                QtCore.QPoint(marker, self.act_pixmap.height())
+            )
+        for marker in self.unerasable_markers:
+            painter.setPen(
+                QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+            )
+            painter.drawLine(
+                QtCore.QPoint(marker, 0),
+                QtCore.QPoint(marker, self.act_pixmap.height())
+            )
+
+        # Update picture
+        self.setPixmap(self.act_pixmap)
+        del painter
 
     def mark_user_answer(self, x:float):
         if len(self.markers) + len(self.unerasable_markers) < self.max_markers:

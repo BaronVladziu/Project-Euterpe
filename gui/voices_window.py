@@ -103,6 +103,13 @@ class VoicesWindow(PageWindow):
         generator_button.clicked.connect(
             self.make_handleButton("generator_button")
         )
+    
+    def reset_window(self):
+        self.state_label.setText("Press button to generate new example -->")
+        self.action_button.setText("Generate New Example")
+        self.reset_labels()
+        for label in self.labels:
+            label.if_active = False
 
     def reset_labels(self):
         # Clear old labels
@@ -639,8 +646,8 @@ class VoicesSettingsWindow(PageWindow):
         )
         self.if_first_note_provided_list = QtWidgets.QComboBox()
         self.if_first_note_provided_list.addItems([
-            "True",
-            "False"
+            "Yes",
+            "No"
         ])
         self.if_first_note_provided_list.setCurrentIndex(0)
         grid_layout.addWidget(
@@ -674,7 +681,6 @@ class VoicesSettingsWindow(PageWindow):
         self.parent.exercise.set_voice_length(
             int(self.voice_length_list.currentText())
         )
-        self.parent.reset_labels()
 
     def scale_changed(self):
         self.parent.exercise.set_scale(
@@ -716,13 +722,21 @@ class VoicesSettingsWindow(PageWindow):
         )
 
     def if_first_note_provided_changed(self):
-        self.parent.exercise.set_if_first_note_provided(
-            bool(self.if_first_note_provided_list.currentText())
-        )
+        if self.if_first_note_provided_list.currentText() == 'Yes':
+            self.parent.exercise.set_if_first_note_provided(True)
+        elif self.if_first_note_provided_list.currentText() == 'No':
+            self.parent.exercise.set_if_first_note_provided(False)
+        else:
+            raise ValueError(
+                '[VoicesSettingsWindow::if_first_note_provided_changed()'\
+                + 'Unknown boolean value: '\
+                + self.if_first_note_provided_list.currentText()\
+                + ' !'
+            )
 
     def make_handleButton(self, button):
         def handleButton():
             if button == "back_button":
-                self.parent.reset_labels()
+                self.parent.reset_window()
                 self.goto("voices_page")
         return handleButton
