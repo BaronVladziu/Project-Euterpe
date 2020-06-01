@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import numpy as np
+
 from notes.chord import Chord
 from notes.chord_generator import ChordGenerator
 from notes.height import Height
@@ -153,7 +155,8 @@ class VoicesExercise:
         if self._if_first_note_provided:
             return self._actual_example.get_height(0, 0)
 
-    def play_example(self):
+    def play_example(self, memory_flush=False):
+        # Check exercise state
         if self._actual_example is None:
             raise RuntimeError(
                 '[VoicesExercise::play_example()] No example to play!'
@@ -162,35 +165,64 @@ class VoicesExercise:
             raise RuntimeError(
                 '[VoicesExercise::play_example()] No play type chosen!'
             )
+    
+        # Generate memory flush
+        signal = np.zeros(0)
+        if memory_flush:
+            signal = np.concatenate([
+                signal,
+                self._synthesizer.generate_memory_flush(
+                    lowest_height=self._lowest_height,
+                    highest_height=self._highest_height
+                ),
+                np.zeros(self._sampling_frequency)
+            ])
+
+        # Play
         if self._play_type == 'Upwards':
             self._player.play(
-                self._synthesizer.generate_chords_up(
-                    self._actual_example.chords
-                )
+                np.concatenate([
+                    signal,
+                    self._synthesizer.generate_chords_up(
+                        self._actual_example.chords
+                    )
+                ])
             )
         elif self._play_type == 'Downwards':
             self._player.play(
-                self._synthesizer.generate_chords_down(
-                    self._actual_example.chords
-                )
+                np.concatenate([
+                    signal,
+                    self._synthesizer.generate_chords_down(
+                        self._actual_example.chords
+                    )
+                ])
             )
         elif self._play_type == 'Upwards with hold':
             self._player.play(
-                self._synthesizer.generate_chords_up_hold(
-                    self._actual_example.chords
-                )
+                np.concatenate([
+                    signal,
+                    self._synthesizer.generate_chords_up_hold(
+                        self._actual_example.chords
+                    )
+                ])
             )
         elif self._play_type == 'Downwards with hold':
             self._player.play(
-                self._synthesizer.generate_chords_down_hold(
-                    self._actual_example.chords
-                )
+                np.concatenate([
+                    signal,
+                    self._synthesizer.generate_chords_down_hold(
+                        self._actual_example.chords
+                    )
+                ])
             )
         elif self._play_type == 'Together':
             self._player.play(
-                self._synthesizer.generate_chords_together(
-                    self._actual_example.chords
-                )
+                np.concatenate([
+                    signal,
+                    self._synthesizer.generate_chords_together(
+                        self._actual_example.chords
+                    )
+                ])
             )
         else:
             raise RuntimeError(

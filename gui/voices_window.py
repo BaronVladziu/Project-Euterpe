@@ -163,7 +163,7 @@ class VoicesWindow(PageWindow):
                         self.labels[0].add_unerasable_marker(
                             first_note.get_cents_from_a()/4 + 835
                         )
-                    self.exercise.play_example()
+                    self.exercise.play_example(memory_flush=True)
                     self.action_button.setText("Listen Again")
                 elif self.labels[0].if_active:
                     self.exercise.play_example()

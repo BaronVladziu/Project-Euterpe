@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import numpy as np
+
 from notes.height import Height
 from notes.height_generator import HeightGenerator
 from synthesis.player import Player
@@ -66,16 +68,34 @@ class TenOHeightsExercise:
         )
         self._actual_example = height_generator.generate_height()
 
-    def play_example(self):
+    def play_example(self, memory_flush=False):
+        # Check exercise state
         if self._actual_example is None:
             raise RuntimeError(
                 '[TenOHeightsExercise::play_example()] No example to play!'
             )
+
+        # Generate memory flush
+        signal = np.zeros(0)
+        if memory_flush:
+            signal = np.concatenate([
+                signal,
+                self._synthesizer.generate_memory_flush(
+                    lowest_height=self._lowest_height,
+                    highest_height=self._highest_height
+                ),
+                np.zeros(self._sampling_frequency)
+            ])
+        
+        # Play
         self._player.play(
-            self._synthesizer.generate_height(
-                height=self._actual_example,
-                time=1
-            )
+            np.concatenate([
+                signal,
+                self._synthesizer.generate_height(
+                    height=self._actual_example,
+                    time=1
+                )
+            ])
         )
 
     def answer_example(self, answer) -> (bool, float):
