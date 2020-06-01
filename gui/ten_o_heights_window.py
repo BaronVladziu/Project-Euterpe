@@ -106,7 +106,7 @@ class TenOHeightsWindow(PageWindow):
                     self.label.reset()
                     self.state_label.setText("Click near correct value on figure above")
                     self.exercise.generate_new_example()
-                    self.exercise.play_example()
+                    self.exercise.play_example(memory_flush=True)
                     self.action_button.setText("Listen Again")
                 elif self.label.if_active:
                     self.exercise.play_example()

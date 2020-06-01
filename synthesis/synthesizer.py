@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import random
+
 import numpy as np
 import scipy.signal
 
@@ -41,7 +43,12 @@ class Synthesizer:
                 + ')] Volume value must be between 1 and 0!'
             )
 
-    def generate_frequency(self, frequency:float, time:float, antialiasing_order=20) -> np.array:
+    def generate_frequency(
+        self,
+        frequency:float,
+        time:float,
+        antialiasing_order=20
+    ) -> np.array:
         """
         Generate signal of given frequency and length.
 
@@ -94,6 +101,39 @@ class Synthesizer:
         :returns: Output signal.
         """
         return self.generate_frequency(height.get_frequency(), time)
+
+    def generate_memory_flush(
+        self,
+        lowest_height:Height,
+        highest_height:Height,
+        min_sounds=8,
+        max_sounds=12,
+        sound_play_time=0.2
+    ) -> np.array:
+        """
+        Generate series of random frequencies and random length.
+
+        :lowest_height: The lowest height
+        :highest_height: The highest height
+        :min_sounds: Minimal number of sounds in a series.
+        :max_sounds: Maximal number of sounds in a series.
+        :sound_play_time: Length of every sound in seconds.
+
+        :returns: Output signal.
+        """
+        output = np.zeros(0)
+        for i in range(random.randint(min_sounds, max_sounds)):
+            output = np.concatenate([
+                output,
+                self.generate_frequency(
+                    random.uniform(
+                        lowest_height.get_frequency(),
+                        highest_height.get_frequency()
+                    ),
+                    sound_play_time
+                )
+            ])
+        return output
 
     def generate_interval_up(
         self,
