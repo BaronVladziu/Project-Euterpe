@@ -5,6 +5,7 @@ from PyQt5 import QtCore, QtWidgets
 
 from gui.intervals_window import IntervalsWindow, IntervalsGeneratorWindow, IntervalsSettingsWindow
 from gui.main_window import MainWindow
+from gui.microtones_window import MicrotonesWindow, MicrotonesGeneratorWindow, MicrotonesSettingsWindow
 from gui.page_window import PageWindow
 from gui.ten_o_heights_window import TenOHeightsWindow, TenOHeightsGeneratorWindow, TenOHeightsSettingsWindow
 from gui.voices_window import VoicesWindow, VoicesGeneratorWindow, VoicesSettingsWindow
@@ -43,6 +44,20 @@ class Window(QtWidgets.QMainWindow):
         self.register(
             IntervalsSettingsWindow(intervals_window),
             "intervals_settings_page"
+        )
+
+        microtones_window = MicrotonesWindow()
+        self.register(
+            microtones_window,
+            "microtones_page"
+        )
+        self.register(
+            MicrotonesGeneratorWindow(microtones_window),
+            "microtones_generator_page"
+        )
+        self.register(
+            MicrotonesSettingsWindow(microtones_window),
+            "microtones_settings_page"
         )
 
         voices_window = VoicesWindow()
