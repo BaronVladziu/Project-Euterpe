@@ -13,6 +13,7 @@ class Scale:
 
         if scale_type == None:
             pass
+
         elif scale_type == '12-TET (A=440Hz)':
             self._heights.append(Height.from_midi(60))
             self._heights.append(Height.from_midi(61))
@@ -137,7 +138,9 @@ class Scale:
             self._heights.append(Height.from_frequency(415.37))
             self._heights.append(Height.from_frequency(440.0))
             self._heights.append(Height.from_frequency(467.97))
-            self._heights.append(Height.from_frequency(492.29))
+            self._heights.append(Height.from_frequency(492.29))        
+
+        # Raise error
         else:
             raise RuntimeError(
                 '[Scale::__init__()] Unknown scale type "'\
@@ -160,7 +163,7 @@ class Scale:
 
         :detune: Detune from 440Hz.
         """
-        self._detune = detune
+        self._detune = abs(detune)
 
     def add_detune(self, detune:int) -> None:
         """
@@ -168,7 +171,7 @@ class Scale:
 
         :detune: Detune from previous value.
         """
-        self._detune += detune
+        self._detune = abs(self._detune + detune)
 
     def get_heights(
         self,

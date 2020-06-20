@@ -8,7 +8,7 @@ class PageWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Euterpe pre-alpha")
+        self.setWindowTitle("Euterpe alpha")
 
     def goto(self, name):
         self.gotoSignal.emit(name)

@@ -92,6 +92,11 @@ class IntervalsWindow(PageWindow):
         self.exercise = IntervalsExercise(
             sampling_frequency=44100
         )
+    
+    def reset_window(self):
+        self.state_label.setText("Press button to generate new example -->")
+        self.action_button.setText("Generate New Interval")
+        self.label.if_active = False
 
     def make_handleButton(self, button):
         def handleButton():
@@ -124,20 +129,20 @@ class IntervalsWindow(PageWindow):
         if if_correct:
             self.state_label.setText(
                 "CORRECT! Pressed: "\
-                + str(answer)\
+                + "{:.2f}".format(answer)\
                 + "±"\
                 + str(int(self.exercise.get_possible_error()))\
                 + "c, Real value: "\
-                + str(int(true_value))
+                + "{:.2f}".format(true_value)
             )
         else:
             self.state_label.setText(
                 "WRONG :c Pressed: "\
-                + str(answer)\
+                + "{:.2f}".format(answer)\
                 + "±"\
                 + str(int(self.exercise.get_possible_error()))\
                 + "c, Real value: "\
-                + str(int(true_value))\
+                + "{:.2f}".format(true_value)\
                 + "c"
             )
         self.action_button.setText("Generate New Interval")
@@ -611,5 +616,6 @@ class IntervalsSettingsWindow(PageWindow):
     def make_handleButton(self, button):
         def handleButton():
             if button == "back_button":
+                self.parent.reset_window()
                 self.goto("intervals_page")
         return handleButton
