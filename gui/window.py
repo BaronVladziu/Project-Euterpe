@@ -3,6 +3,7 @@
 
 from PyQt5 import QtCore, QtWidgets
 
+from gui.detuning_window import DetuningWindow, DetuningGeneratorWindow, DetuningSettingsWindow
 from gui.intervals_window import IntervalsWindow, IntervalsGeneratorWindow, IntervalsSettingsWindow
 from gui.main_window import MainWindow
 from gui.microtones_window import MicrotonesWindow, MicrotonesGeneratorWindow, MicrotonesSettingsWindow
@@ -46,20 +47,6 @@ class Window(QtWidgets.QMainWindow):
             "intervals_settings_page"
         )
 
-        microtones_window = MicrotonesWindow()
-        self.register(
-            microtones_window,
-            "microtones_page"
-        )
-        self.register(
-            MicrotonesGeneratorWindow(microtones_window),
-            "microtones_generator_page"
-        )
-        self.register(
-            MicrotonesSettingsWindow(microtones_window),
-            "microtones_settings_page"
-        )
-
         voices_window = VoicesWindow()
         self.register(
             voices_window,
@@ -74,11 +61,38 @@ class Window(QtWidgets.QMainWindow):
             "voices_settings_page"
         )
 
-        self.register(MainWindow(
-            ten_o_heights_window,
-            intervals_window,
-            voices_window
-        ), "main_page")
+        microtones_window = MicrotonesWindow()
+        self.register(
+            microtones_window,
+            "microtones_page"
+        )
+        self.register(
+            MicrotonesGeneratorWindow(microtones_window),
+            "microtones_generator_page"
+        )
+        self.register(
+            MicrotonesSettingsWindow(microtones_window),
+            "microtones_settings_page"
+        )
+
+        detuning_window = DetuningWindow()
+        self.register(
+            detuning_window,
+            "detuning_page"
+        )
+        self.register(
+            DetuningGeneratorWindow(detuning_window),
+            "detuning_generator_page"
+        )
+        self.register(
+            DetuningSettingsWindow(detuning_window),
+            "detuning_settings_page"
+        )
+
+        self.register(
+            MainWindow(voices_window),
+            "main_page"
+        )
 
         self.goto("main_page")
 

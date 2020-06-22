@@ -4,7 +4,7 @@
 from notes.height import Height
 
 class Chord:
-    def __init__(self, heights:list):
+    def __init__(self, heights=list()):
         """
         Set of heights used as a whole.
         """
