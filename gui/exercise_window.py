@@ -8,9 +8,48 @@ from gui.page_window import PageWindow
 from gui.state_label import StateLabel
 
 
-# class ExerciseInfoWindow(PageWindow):
-#     def __init__(self):
-#         super().__init__()
+class ExerciseInstructionWindow(PageWindow):
+    def __init__(self,
+        instruction:str,
+        back_button_name:str,
+        forward_button_name:str,
+        button_method
+    ):
+        super().__init__()
+        central_widget = QtWidgets.QWidget(self)
+        self.setCentralWidget(central_widget)
+        self.grid_layout = QtWidgets.QGridLayout(central_widget)
+
+        self.label = QtWidgets.QLabel()
+        self.label.setText(instruction)
+        self.grid_layout.addWidget(
+            self.label,
+            0, 0,
+            1, 2,
+            QtCore.Qt.AlignCenter
+        )
+
+        self.back_button = Button("Back", self)
+        self.grid_layout.addWidget(
+            self.back_button,
+            1, 0,
+            1, 1,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.back_button.clicked.connect(
+            button_method(back_button_name)
+        )
+
+        self.forward_button = Button("Ok", self)
+        self.grid_layout.addWidget(
+            self.forward_button,
+            1, 1,
+            1, 1,
+            alignment=QtCore.Qt.AlignCenter
+        )
+        self.forward_button.clicked.connect(
+            button_method(forward_button_name)
+        )
 
 
 class ExerciseMainWindow(PageWindow):

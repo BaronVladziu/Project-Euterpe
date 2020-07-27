@@ -21,6 +21,10 @@ class Window(QtWidgets.QMainWindow):
 
         ten_o_heights_window = TenOHeightsWindow()
         self.register(
+            ten_o_heights_window.instruction_window,
+            "ten_o_heights_instruction_page"
+        )
+        self.register(
             ten_o_heights_window.main_window,
             "ten_o_heights_page"
         )
@@ -34,6 +38,10 @@ class Window(QtWidgets.QMainWindow):
         )
 
         intervals_window = IntervalsWindow()
+        self.register(
+            intervals_window.instruction_window,
+            "intervals_instruction_page"
+        )
         self.register(
             intervals_window.main_window,
             "intervals_page"
@@ -49,6 +57,10 @@ class Window(QtWidgets.QMainWindow):
 
         voices_window = VoicesWindow()
         self.register(
+            voices_window.instruction_window,
+            "voices_instruction_page"
+        )
+        self.register(
             voices_window.main_window,
             "voices_page"
         )
@@ -63,6 +75,10 @@ class Window(QtWidgets.QMainWindow):
 
         microtones_window = MicrotonesWindow()
         self.register(
+            microtones_window.instruction_window,
+            "microtones_instruction_page"
+        )
+        self.register(
             microtones_window.main_window,
             "microtones_page"
         )
@@ -76,6 +92,10 @@ class Window(QtWidgets.QMainWindow):
         )
 
         detuning_window = DetuningWindow()
+        self.register(
+            detuning_window.instruction_window,
+            "detuning_instruction_page"
+        )
         self.register(
             detuning_window.main_window,
             "detuning_page"

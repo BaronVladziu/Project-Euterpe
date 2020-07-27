@@ -4,7 +4,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from exercises.voices_exercise import VoicesExercise
-from gui.exercise_window import ExerciseMainWindow, ExerciseSettingsWindow
+from gui.exercise_window import ExerciseInstructionWindow, ExerciseMainWindow, ExerciseSettingsWindow
 from gui.picture_label import PictureLabel
 from notes.height import Height
 from notes.interval import Interval
@@ -21,6 +21,14 @@ class VoicesWindow():
         # Add exercise class
         self.exercise = VoicesExercise(
             sampling_frequency=44100
+        )
+
+        # === INSTRUCTION WINDOW ===
+        self.instruction_window = ExerciseInstructionWindow(
+            instruction="VOICES",
+            back_button_name="back_from_instruction_button",
+            forward_button_name="forward_from_instruction_button",
+            button_method=self.make_handleButton
         )
 
         # === MAIN WINDOW ===
@@ -382,6 +390,10 @@ class VoicesWindow():
                 self.main_window.goto("voices_settings_page")
             elif button == "generator_button":
                 self.main_window.goto("voices_generator_page")
+            elif button == "back_from_instruction_button":
+                self.instruction_window.goto("main_page")
+            elif button == "forward_from_instruction_button":
+                self.instruction_window.goto("voices_page")
             elif button == "back_button":
                 self.labels = list()
                 self.main_window.goto("main_page")
