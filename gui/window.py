@@ -9,7 +9,7 @@ from gui.main_window import MainWindow
 from gui.microtones_window import MicrotonesWindow, MicrotonesGeneratorWindow, MicrotonesSettingsWindow
 from gui.page_window import PageWindow
 from gui.ten_o_heights_window import TenOHeightsWindow, TenOHeightsGeneratorWindow, TenOHeightsSettingsWindow
-from gui.voices_window import VoicesWindow, VoicesGeneratorWindow, VoicesSettingsWindow
+from gui.voices_window import VoicesWindow
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -49,15 +49,15 @@ class Window(QtWidgets.QMainWindow):
 
         voices_window = VoicesWindow()
         self.register(
-            voices_window,
+            voices_window.main_window,
             "voices_page"
         )
         self.register(
-            VoicesGeneratorWindow(voices_window),
+            voices_window.generator_window,
             "voices_generator_page"
         )
         self.register(
-            VoicesSettingsWindow(voices_window),
+            voices_window.setting_window,
             "voices_settings_page"
         )
 

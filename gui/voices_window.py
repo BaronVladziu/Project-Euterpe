@@ -4,7 +4,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from exercises.voices_exercise import VoicesExercise
-from gui.page_window import PageWindow
+from gui.exercise_window import ExerciseMainWindow, ExerciseSettingsWindow
 from gui.picture_label import PictureLabel
 from notes.height import Height
 from notes.interval import Interval
@@ -16,21 +16,19 @@ from synthesis.square_synthesizer import SquareSynthesizer
 from synthesis.triangle_synthesizer import TriangleSynthesizer
 
 
-class VoicesWindow(PageWindow):
+class VoicesWindow():
     def __init__(self):
-        super().__init__()
-        central_widget = QtWidgets.QWidget(self)
-        self.setCentralWidget(central_widget)
-        grid_layout = QtWidgets.QGridLayout(central_widget)
-
         # Add exercise class
         self.exercise = VoicesExercise(
             sampling_frequency=44100
         )
 
+        # === MAIN WINDOW ===
+        self.main_window = ExerciseMainWindow()
+
         # Add pictures
-        self.label_widget = QtWidgets.QWidget(self)
-        grid_layout.addWidget(
+        self.label_widget = QtWidgets.QWidget(self.main_window)
+        self.main_window.grid_layout.addWidget(
             self.label_widget,
             0, 0,
             1, 7,
@@ -40,73 +38,313 @@ class VoicesWindow(PageWindow):
         self.labels_layout = QtWidgets.QGridLayout(self.label_widget)
 
         # Add button to main page
-        back_button = QtWidgets.QPushButton("Back", self)
-        grid_layout.addWidget(
-            back_button,
-            1, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        back_button.clicked.connect(
-            self.make_handleButton("back_button")
+        self.main_window.add_button(
+            name="back_button",
+            position=0,
+            size=1,
+            text="Back",
+            method=self.make_handleButton
         )
 
         # Add state label
-        self.state_label = QtWidgets.QLabel()
-        self.state_label.setText("Press button to generate new example -->")
-        grid_layout.addWidget(
-            self.state_label,
-            1, 1,
-            1, 2,
-            alignment=QtCore.Qt.AlignCenter
+        self.main_window.add_state_label(
+            text="Press button to generate new example -->",
+            position=1,
+            size=2
         )
 
         # Add action button
-        self.action_button = QtWidgets.QPushButton("Generate New Example", self)
-        grid_layout.addWidget(
-            self.action_button,
-            1, 3,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.action_button.clicked.connect(
-            self.make_handleButton("action_button")
+        self.main_window.add_button(
+            name="action_button",
+            position=3,
+            size=1,
+            text="Generate New Example",
+            method=self.make_handleButton
         )
 
         # Add answer button
-        self.answer_button = QtWidgets.QPushButton("Check answer", self)
-        grid_layout.addWidget(
-            self.answer_button,
-            1, 4,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.answer_button.clicked.connect(
-            self.make_handleButton("answer_button")
+        self.main_window.add_button(
+            name="answer_button",
+            position=4,
+            size=1,
+            text="Check answer",
+            method=self.make_handleButton
         )
 
         # Add button to settings page
-        settings_button = QtWidgets.QPushButton("Exercise Settings", self)
-        grid_layout.addWidget(
-            settings_button,
-            1, 5,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        settings_button.clicked.connect(
-            self.make_handleButton("settings_button")
+        self.main_window.add_button(
+            name="settings_button",
+            position=5,
+            size=1,
+            text="Exercise Settings",
+            method=self.make_handleButton
         )
 
         # Add button to generator page
-        generator_button = QtWidgets.QPushButton("Sound Generator", self)
-        grid_layout.addWidget(
-            generator_button,
-            1, 6,
-            alignment=QtCore.Qt.AlignCenter
+        self.main_window.add_button(
+            name="generator_button",
+            position=6,
+            size=1,
+            text="Sound Generator",
+            method=self.make_handleButton
         )
-        generator_button.clicked.connect(
-            self.make_handleButton("generator_button")
+
+        # === GENERATOR SETTINGS WINDOW ===
+        self.generator_window = ExerciseSettingsWindow()
+
+        # Add volume setting
+        self.generator_window.add_setting(
+            name="volume",
+            text="Volume:",
+            values=[
+                "0.0",
+                "0.1",
+                "0.2",
+                "0.3",
+                "0.4",
+                "0.5",
+                "0.6",
+                "0.7",
+                "0.8",
+                "0.9",
+                "1.0"
+            ],
+            default_option_index=10,
+            setting_method=self.volume_changed
         )
-    
+
+        # Add synthesizer type setting
+        self.generator_window.add_setting(
+            name="synthesizer_type",
+            text="Synthesizer Type:",
+            values=[
+                "Sine",
+                "Saw",
+                "Triangle",
+                "Square",
+                "Noise"
+            ],
+            default_option_index=2,
+            setting_method=self.synthesizer_type_changed
+        )
+
+        # Add sampling frequency setting
+        self.generator_window.add_setting(
+            name="sampling_frequency",
+            text="Sampling Frequency:",
+            values=[
+                "8000",
+                "16000",
+                "22050",
+                "44100",
+                "48000",
+                "96000",
+                "192000"
+            ],
+            default_option_index=3,
+            setting_method=self.sampling_frequency_changed
+        )
+
+        # Add play type setting
+        self.generator_window.add_setting(
+            name="play_type",
+            text="Play Type:",
+            values=[
+                "Upwards",
+                "Downwards",
+                "Upwards with hold",
+                "Downwards with hold",
+                "Together"
+            ],
+            default_option_index=4,
+            setting_method=self.play_type_changed
+        )
+
+        # Add button to voices page
+        self.generator_window.add_button(
+            name="back_from_generator",
+            text="Back",
+            button_method=self.make_handleButton
+        )
+
+        # === EXERCISE SETTINGS WINDOW ===
+        self.setting_window = ExerciseSettingsWindow()
+
+        # Add chord size setting
+        self.setting_window.add_setting(
+            name="chord_size",
+            text="Number of sounds in a chord:",
+            values=[
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+            ],
+            default_option_index=1,
+            setting_method=self.chord_size_changed
+        )
+
+        # Add voice length setting
+        self.setting_window.add_setting(
+            name="voice_length",
+            text="Number of chords:",
+            values=[
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+            ],
+            default_option_index=1,
+            setting_method=self.voice_length_changed
+        )
+
+        # Add scale setting
+        self.setting_window.add_setting(
+            name="scale",
+            text="Scale:",
+            values=[
+                "12-TET (A=440Hz)",
+                "24-TET (A=440Hz)",
+                "31-TET (A=440Hz)",
+                "Pythagorean (C-based) (A=440Hz)",
+                "Just (C-based) (A=440Hz)",
+                "Quarter-comma meantone (C-based) (A=440Hz)",
+                "Bach's (according to Werckmeister)"
+            ],
+            default_option_index=0,
+            setting_method=self.scale_changed
+        )
+
+        # Add lowest height setting
+        self.setting_window.add_setting(
+            name="lowest_height",
+            text="Lowest Height:",
+            values=[
+                "C2",
+                "C3",
+                "C4",
+                "C5"
+            ],
+            default_option_index=0,
+            setting_method=self.lowest_height_changed
+        )
+
+        # Add highest height setting
+        self.setting_window.add_setting(
+            name="highest_height",
+            text="Highest Height:",
+            values=[
+                "C3",
+                "C4",
+                "C5",
+                "C6"
+            ],
+            default_option_index=3,
+            setting_method=self.highest_height_changed
+        )
+
+        # Add smallest interval setting
+        self.setting_window.add_setting(
+            name="smallest_interval",
+            text="Smallest Interval in Chord:",
+            values=[
+                "20",
+                "400",
+                "700",
+                "1200"
+            ],
+            default_option_index=0,
+            setting_method=self.smallest_interval_changed
+        )
+
+        # Add largest interval setting
+        self.setting_window.add_setting(
+            name="largest_interval",
+            text="Largest Interval in Chord:",
+            values=[
+                "400",
+                "700",
+                "1200",
+                "1900",
+                "2400",
+                "3600",
+                "4800"
+            ],
+            default_option_index=6,
+            setting_method=self.largest_interval_changed
+        )
+
+        # Add possible detune setting
+        self.setting_window.add_setting(
+            name="possible_detune",
+            text="Possible Detune:",
+            values=[
+                "0",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "16",
+                "17",
+                "18",
+                "19",
+                "20"
+            ],
+            default_option_index=1,
+            setting_method=self.possible_detune_changed
+        )
+
+        # Add possible error setting
+        self.setting_window.add_setting(
+            name="possible_error",
+            text="Possible Error:",
+            values=[
+                "5",
+                "10",
+                "20",
+                "50",
+                "100",
+                "200",
+                "500"
+            ],
+            default_option_index=2,
+            setting_method=self.possible_error_changed
+        )
+
+        # Add if first note provided
+        self.setting_window.add_setting(
+            name="if_first_note_provided",
+            text="Is First Note Provided:",
+            values=[
+                "Yes",
+                "No"
+            ],
+            default_option_index=0,
+            setting_method=self.if_first_note_provided_changed
+        )
+
+        # Add button to voices page
+        self.setting_window.add_button(
+            name="back_from_settings",
+            text="Back",
+            button_method=self.make_handleButton
+        )
+
     def reset_window(self):
-        self.state_label.setText("Press button to generate new example -->")
-        self.action_button.setText("Generate New Example")
+        self.main_window.reset_window()
         self.reset_labels()
         for label in self.labels:
             label.if_active = False
@@ -141,18 +379,23 @@ class VoicesWindow(PageWindow):
     def make_handleButton(self, button):
         def handleButton():
             if button == "settings_button":
-                self.goto("voices_settings_page")
+                self.main_window.goto("voices_settings_page")
             elif button == "generator_button":
-                self.goto("voices_generator_page")
+                self.main_window.goto("voices_generator_page")
             elif button == "back_button":
                 self.labels = list()
-                self.goto("main_page")
+                self.main_window.goto("main_page")
+            elif button == "back_from_generator":
+                self.generator_window.goto("voices_page")
+            elif button == "back_from_settings":
+                self.reset_window()
+                self.setting_window.goto("voices_page")
             elif button == "action_button":
                 if not self.labels[0].if_active:
                     # Reset labels
                     for label in self.labels:
                         label.reset()
-                    self.state_label.setText(
+                    self.main_window.state_label.change_text(
                         "Click near correct values on figure above"
                     )
 
@@ -164,7 +407,7 @@ class VoicesWindow(PageWindow):
                             first_note.get_cents_from_a()/4 + 835
                         )
                     self.exercise.play_example(memory_flush=True)
-                    self.action_button.setText("Listen Again")
+                    self.main_window.buttons["action_button"].change_text("Listen Again")
                 elif self.labels[0].if_active:
                     self.exercise.play_example()
             elif button == "answer_button":
@@ -192,10 +435,7 @@ class VoicesWindow(PageWindow):
                                 if_correct,
                                 true_value.get_cents_from_a()/4 + 835
                             )
-                    self.state_label.setText(
-                        "Press button to generate new example -->"
-                    )
-                    self.action_button.setText("Generate New Example")
+                    self.main_window.reset_window()
         return handleButton
 
     def move_event(self, x, y, label_id):
@@ -215,566 +455,109 @@ class VoicesWindow(PageWindow):
             self.exercise.get_possible_error()/4
         )
 
-
-class VoicesGeneratorWindow(PageWindow):
-    def __init__(self, parent:VoicesWindow):
-        super().__init__()
-        self.parent = parent
-
-        central_widget = QtWidgets.QWidget(self)
-        self.setCentralWidget(central_widget)
-        grid_layout = QtWidgets.QGridLayout(central_widget)
-
-        # Add volume setting
-        self.volume_label = QtWidgets.QLabel()
-        self.volume_label.setText("Volume:")
-        grid_layout.addWidget(
-            self.volume_label,
-            0, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.volume_list = QtWidgets.QComboBox()
-        self.volume_list.addItems([
-            "0.0",
-            "0.1",
-            "0.2",
-            "0.3",
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "1.0"
-        ])
-        self.volume_list.setCurrentIndex(10)
-        grid_layout.addWidget(
-            self.volume_list,
-            0, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.volume_list.currentIndexChanged.connect(
-            self.volume_changed
-        )
-        self.volume_changed()
-
-        # Add synthesizer type setting
-        self.synthesizer_type_label = QtWidgets.QLabel()
-        self.synthesizer_type_label.setText("Synthesizer Type:")
-        grid_layout.addWidget(
-            self.synthesizer_type_label,
-            1, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.synthesizer_type_list = QtWidgets.QComboBox()
-        self.synthesizer_type_list.addItems([
-            "Sine",
-            "Saw",
-            "Triangle",
-            "Square",
-            "Noise"
-        ])
-        self.synthesizer_type_list.setCurrentIndex(2)
-        grid_layout.addWidget(
-            self.synthesizer_type_list,
-            1, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.synthesizer_type_list.currentIndexChanged.connect(
-            self.synthesizer_type_changed
-        )
-        self.synthesizer_type_changed()
-
-        # Add sampling frequency setting
-        self.sampling_frequency_label = QtWidgets.QLabel()
-        self.sampling_frequency_label.setText("Sampling Frequency:")
-        grid_layout.addWidget(
-            self.sampling_frequency_label,
-            2, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.sampling_frequency_list = QtWidgets.QComboBox()
-        self.sampling_frequency_list.addItems([
-            "8000",
-            "16000",
-            "22050",
-            "44100",
-            "48000",
-            "96000",
-            "192000"
-        ])
-        self.sampling_frequency_list.setCurrentIndex(3)
-        grid_layout.addWidget(
-            self.sampling_frequency_list,
-            2, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.sampling_frequency_list.currentIndexChanged.connect(
-            self.sampling_frequency_changed
-        )
-        self.sampling_frequency_changed()
-
-        # Add play type setting
-        self.play_type_label = QtWidgets.QLabel()
-        self.play_type_label.setText("Play Type:")
-        grid_layout.addWidget(
-            self.play_type_label,
-            3, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.play_type_list = QtWidgets.QComboBox()
-        self.play_type_list.addItems([
-            "Upwards",
-            "Downwards",
-            "Upwards with hold",
-            "Downwards with hold",
-            "Together"
-        ])
-        self.play_type_list.setCurrentIndex(4)
-        grid_layout.addWidget(
-            self.play_type_list,
-            3, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.play_type_list.currentIndexChanged.connect(
-            self.play_type_changed
-        )
-        self.play_type_changed()
-
-        # Add button to voices page
-        back_button = QtWidgets.QPushButton("Back", self)
-        grid_layout.addWidget(
-            back_button,
-            4, 0,
-            1, 2,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        back_button.clicked.connect(
-            self.make_handleButton("back_button")
-        )
-
+    # === EXERCISE GENERATOR METHODS ===
     def volume_changed(self):
-        self.parent.exercise.set_volume(
-            float(self.volume_list.currentText())
+        self.exercise.set_volume(
+            float(self.generator_window.get_setting("volume"))
         )
 
     def synthesizer_type_changed(self):
-        if self.synthesizer_type_list.currentText() == "Sine":
-            self.parent.exercise.set_synthesizer(
+        if self.generator_window.get_setting("synthesizer_type") == "Sine":
+            self.exercise.set_synthesizer(
                 SineSynthesizer
             )
-        elif self.synthesizer_type_list.currentText() == "Saw":
-            self.parent.exercise.set_synthesizer(
+        elif self.generator_window.get_setting("synthesizer_type") == "Saw":
+            self.exercise.set_synthesizer(
                 SawSynthesizer
             )
-        elif self.synthesizer_type_list.currentText() == "Triangle":
-            self.parent.exercise.set_synthesizer(
+        elif self.generator_window.get_setting("synthesizer_type") == "Triangle":
+            self.exercise.set_synthesizer(
                 TriangleSynthesizer
             )
-        elif self.synthesizer_type_list.currentText() == "Square":
-            self.parent.exercise.set_synthesizer(
+        elif self.generator_window.get_setting("synthesizer_type") == "Square":
+            self.exercise.set_synthesizer(
                 SquareSynthesizer
             )
-        elif self.synthesizer_type_list.currentText() == "Noise":
-            self.parent.exercise.set_synthesizer(
+        elif self.generator_window.get_setting("synthesizer_type") == "Noise":
+            self.exercise.set_synthesizer(
                 NoiseSynthesizer
             )
         else:
             raise RuntimeError(
                 '[VoicesGeneratorWindow::synthesizer_type_changed()] Unknown synthesizer "'\
-                + self.synthesizer_type_list.currentText()\
+                + self.generator_window.get_setting("synthesizer_type")\
                 + '"!'
             )
 
     def sampling_frequency_changed(self):
-        self.parent.exercise.set_sampling_frequency(
-            int(self.sampling_frequency_list.currentText())
+        self.exercise.set_sampling_frequency(
+            int(self.generator_window.get_setting("sampling_frequency"))
         )
 
     def play_type_changed(self):
-        self.parent.exercise.set_play_type(
-            self.play_type_list.currentText()
+        self.exercise.set_play_type(
+            self.generator_window.get_setting("play_type")
         )
 
-    def make_handleButton(self, button):
-        def handleButton():
-            if button == "back_button":
-                self.goto("voices_page")
-        return handleButton
-
-
-class VoicesSettingsWindow(PageWindow):
-    def __init__(self, parent:VoicesWindow):
-        super().__init__()
-        self.parent = parent
-
-        central_widget = QtWidgets.QWidget(self)
-        self.setCentralWidget(central_widget)
-        grid_layout = QtWidgets.QGridLayout(central_widget)
-
-        # Add chord size setting
-        self.chord_size_label = QtWidgets.QLabel()
-        self.chord_size_label.setText("Number of sounds in a chord:")
-        grid_layout.addWidget(
-            self.chord_size_label,
-            0, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.chord_size_list = QtWidgets.QComboBox()
-        self.chord_size_list.addItems([
-            "1",
-            "2",
-            "3",
-            "4",
-            "5"
-        ])
-        self.chord_size_list.setCurrentIndex(1)
-        grid_layout.addWidget(
-            self.chord_size_list,
-            0, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.chord_size_list.currentIndexChanged.connect(
-            self.chord_size_changed
-        )
-        self.chord_size_changed()
-
-        # Add voice length setting
-        self.voice_length_label = QtWidgets.QLabel()
-        self.voice_length_label.setText("Number of chords:")
-        grid_layout.addWidget(
-            self.voice_length_label,
-            1, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.voice_length_list = QtWidgets.QComboBox()
-        self.voice_length_list.addItems([
-            "1",
-            "2",
-            "3",
-            "4",
-            "5"
-        ])
-        self.voice_length_list.setCurrentIndex(1)
-        grid_layout.addWidget(
-            self.voice_length_list,
-            1, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.voice_length_list.currentIndexChanged.connect(
-            self.voice_length_changed
-        )
-        self.voice_length_changed()
-
-        # Add scale setting
-        self.scale_label = QtWidgets.QLabel()
-        self.scale_label.setText("Scale:")
-        grid_layout.addWidget(
-            self.scale_label,
-            2, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.scale_list = QtWidgets.QComboBox()
-        self.scale_list.addItems([
-            "12-TET (A=440Hz)",
-            "24-TET (A=440Hz)",
-            "31-TET (A=440Hz)",
-            "Pythagorean (C-based) (A=440Hz)",
-            "Just (C-based) (A=440Hz)",
-            "Quarter-comma meantone (C-based) (A=440Hz)",
-            "Bach's (according to Werckmeister)"
-        ])
-        self.scale_list.setCurrentIndex(0)
-        grid_layout.addWidget(
-            self.scale_list,
-            2, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.scale_list.currentIndexChanged.connect(
-            self.scale_changed
-        )
-        self.scale_changed()
-
-        # Add lowest height setting
-        self.lowest_height_label = QtWidgets.QLabel()
-        self.lowest_height_label.setText("Lowest Height:")
-        grid_layout.addWidget(
-            self.lowest_height_label,
-            3, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.lowest_height_list = QtWidgets.QComboBox()
-        self.lowest_height_list.addItems([
-            "C2",
-            "C3",
-            "C4",
-            "C5"
-        ])
-        self.lowest_height_list.setCurrentIndex(0)
-        grid_layout.addWidget(
-            self.lowest_height_list,
-            3, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.lowest_height_list.currentIndexChanged.connect(
-            self.lowest_height_changed
-        )
-        self.lowest_height_changed()
-
-        # Add highest height setting
-        self.highest_height_label = QtWidgets.QLabel()
-        self.highest_height_label.setText("Highest Height:")
-        grid_layout.addWidget(
-            self.highest_height_label,
-            4, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.highest_height_list = QtWidgets.QComboBox()
-        self.highest_height_list.addItems([
-            "C3",
-            "C4",
-            "C5",
-            "C6"
-        ])
-        self.highest_height_list.setCurrentIndex(3)
-        grid_layout.addWidget(
-            self.highest_height_list,
-            4, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.highest_height_list.currentIndexChanged.connect(
-            self.highest_height_changed
-        )
-        self.highest_height_changed()
-
-        # Add smallest interval setting
-        self.smallest_interval_label = QtWidgets.QLabel()
-        self.smallest_interval_label.setText("Smallest Interval in Chord:")
-        grid_layout.addWidget(
-            self.smallest_interval_label,
-            5, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.smallest_interval_list = QtWidgets.QComboBox()
-        self.smallest_interval_list.addItems([
-            "20",
-            "400",
-            "700",
-            "1200"
-        ])
-        self.smallest_interval_list.setCurrentIndex(0)
-        grid_layout.addWidget(
-            self.smallest_interval_list,
-            5, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.smallest_interval_list.currentIndexChanged.connect(
-            self.smallest_interval_changed
-        )
-        self.smallest_interval_changed()
-
-        # Add largest interval setting
-        self.largest_interval_label = QtWidgets.QLabel()
-        self.largest_interval_label.setText("Largest Interval in Chord:")
-        grid_layout.addWidget(
-            self.largest_interval_label,
-            6, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.largest_interval_list = QtWidgets.QComboBox()
-        self.largest_interval_list.addItems([
-            "400",
-            "700",
-            "1200",
-            "1900",
-            "2400",
-            "3600",
-            "4800"
-        ])
-        self.largest_interval_list.setCurrentIndex(6)
-        grid_layout.addWidget(
-            self.largest_interval_list,
-            6, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.largest_interval_list.currentIndexChanged.connect(
-            self.largest_interval_changed
-        )
-        self.largest_interval_changed()
-
-        # Add possible detune setting
-        self.possible_detune_label = QtWidgets.QLabel()
-        self.possible_detune_label.setText("Possible Detune:")
-        grid_layout.addWidget(
-            self.possible_detune_label,
-            7, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.possible_detune_list = QtWidgets.QComboBox()
-        self.possible_detune_list.addItems([
-            "0",
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9",
-            "10",
-            "11",
-            "12",
-            "13",
-            "14",
-            "15",
-            "16",
-            "17",
-            "18",
-            "19",
-            "20"
-        ])
-        self.possible_detune_list.setCurrentIndex(1)
-        grid_layout.addWidget(
-            self.possible_detune_list,
-            7, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.possible_detune_list.currentIndexChanged.connect(
-            self.possible_detune_changed
-        )
-        self.possible_detune_changed()
-
-        # Add possible error setting
-        self.possible_error_label = QtWidgets.QLabel()
-        self.possible_error_label.setText("Possible Error:")
-        grid_layout.addWidget(
-            self.possible_error_label,
-            8, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.possible_error_list = QtWidgets.QComboBox()
-        self.possible_error_list.addItems([
-            "5",
-            "10",
-            "20",
-            "50",
-            "100",
-            "200",
-            "500"
-        ])
-        self.possible_error_list.setCurrentIndex(2)
-        grid_layout.addWidget(
-            self.possible_error_list,
-            8, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.possible_error_list.currentIndexChanged.connect(
-            self.possible_error_changed
-        )
-        self.possible_error_changed()
-
-        # Add if first note provided
-        self.if_first_note_provided_label = QtWidgets.QLabel()
-        self.if_first_note_provided_label.setText("Is First Note Provided:")
-        grid_layout.addWidget(
-            self.if_first_note_provided_label,
-            9, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.if_first_note_provided_list = QtWidgets.QComboBox()
-        self.if_first_note_provided_list.addItems([
-            "Yes",
-            "No"
-        ])
-        self.if_first_note_provided_list.setCurrentIndex(0)
-        grid_layout.addWidget(
-            self.if_first_note_provided_list,
-            9, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.if_first_note_provided_list.currentIndexChanged.connect(
-            self.if_first_note_provided_changed
-        )
-        self.if_first_note_provided_changed()
-
-        # Add button to voices page
-        back_button = QtWidgets.QPushButton("Back", self)
-        grid_layout.addWidget(
-            back_button,
-            10, 0,
-            1, 2,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        back_button.clicked.connect(
-            self.make_handleButton("back_button")
-        )
-
+    # === EXERCISE SETTINGS METHODS ===
     def chord_size_changed(self):
-        self.parent.exercise.set_chord_size(
-            int(self.chord_size_list.currentText())
+        self.exercise.set_chord_size(
+            int(self.setting_window.get_setting("chord_size"))
         )
 
     def voice_length_changed(self):
-        self.parent.exercise.set_voice_length(
-            int(self.voice_length_list.currentText())
+        self.exercise.set_voice_length(
+            int(self.setting_window.get_setting("voice_length"))
         )
 
     def scale_changed(self):
-        self.parent.exercise.set_scale(
-            Scale(self.scale_list.currentText())
+        self.exercise.set_scale(
+            Scale(self.setting_window.get_setting("scale"))
         )
 
     def lowest_height_changed(self):
-        self.parent.exercise.set_lowest_height(
-            Height.from_name(self.lowest_height_list.currentText())
+        self.exercise.set_lowest_height(
+            Height.from_name(self.setting_window.get_setting("lowest_height"))
         )
 
     def highest_height_changed(self):
-        self.parent.exercise.set_highest_height(
-            Height.from_name(self.highest_height_list.currentText())
+        self.exercise.set_highest_height(
+            Height.from_name(self.setting_window.get_setting("highest_height"))
         )
 
     def smallest_interval_changed(self):
-        self.parent.exercise.set_smallest_interval(
+        self.exercise.set_smallest_interval(
             Interval.from_cents(
-                int(self.smallest_interval_list.currentText())
+                int(self.setting_window.get_setting("smallest_interval"))
             )
         )
 
     def largest_interval_changed(self):
-        self.parent.exercise.set_largest_interval(
+        self.exercise.set_largest_interval(
             Interval.from_cents(
-                int(self.largest_interval_list.currentText())
+                int(self.setting_window.get_setting("largest_interval"))
             )
         )
 
     def possible_detune_changed(self):
-        self.parent.exercise.set_possible_detune(
-            int(self.possible_detune_list.currentText())
+        self.exercise.set_possible_detune(
+            int(self.setting_window.get_setting("possible_detune"))
         )
 
     def possible_error_changed(self):
-        self.parent.exercise.set_possible_error(
-            int(self.possible_error_list.currentText())
+        self.exercise.set_possible_error(
+            int(self.setting_window.get_setting("possible_error"))
         )
 
     def if_first_note_provided_changed(self):
-        if self.if_first_note_provided_list.currentText() == 'Yes':
-            self.parent.exercise.set_if_first_note_provided(True)
-        elif self.if_first_note_provided_list.currentText() == 'No':
-            self.parent.exercise.set_if_first_note_provided(False)
+        if self.setting_window.get_setting("if_first_note_provided") == 'Yes':
+            self.exercise.set_if_first_note_provided(True)
+        elif self.setting_window.get_setting("if_first_note_provided") == 'No':
+            self.exercise.set_if_first_note_provided(False)
         else:
             raise ValueError(
                 '[VoicesSettingsWindow::if_first_note_provided_changed()'\
                 + 'Unknown boolean value: '\
-                + self.if_first_note_provided_list.currentText()\
+                + self.setting_window.get_setting("if_first_note_provided")\
                 + ' !'
             )
-
-    def make_handleButton(self, button):
-        def handleButton():
-            if button == "back_button":
-                self.parent.reset_window()
-                self.goto("voices_page")
-        return handleButton
