@@ -3,12 +3,12 @@
 
 from PyQt5 import QtCore, QtWidgets
 
-from gui.detuning_window import DetuningWindow, DetuningGeneratorWindow, DetuningSettingsWindow
-from gui.intervals_window import IntervalsWindow, IntervalsGeneratorWindow, IntervalsSettingsWindow
+from gui.detuning_window import DetuningWindow
+from gui.intervals_window import IntervalsWindow
 from gui.main_window import MainWindow
-from gui.microtones_window import MicrotonesWindow, MicrotonesGeneratorWindow, MicrotonesSettingsWindow
+from gui.microtones_window import MicrotonesWindow
 from gui.page_window import PageWindow
-from gui.ten_o_heights_window import TenOHeightsWindow, TenOHeightsGeneratorWindow, TenOHeightsSettingsWindow
+from gui.ten_o_heights_window import TenOHeightsWindow
 from gui.voices_window import VoicesWindow
 
 class Window(QtWidgets.QMainWindow):
@@ -21,29 +21,29 @@ class Window(QtWidgets.QMainWindow):
 
         ten_o_heights_window = TenOHeightsWindow()
         self.register(
-            ten_o_heights_window,
+            ten_o_heights_window.main_window,
             "ten_o_heights_page"
         )
         self.register(
-            TenOHeightsGeneratorWindow(ten_o_heights_window),
+            ten_o_heights_window.generator_window,
             "ten_o_heights_generator_page"
         )
         self.register(
-            TenOHeightsSettingsWindow(ten_o_heights_window),
+            ten_o_heights_window.setting_window,
             "ten_o_heights_settings_page"
         )
 
         intervals_window = IntervalsWindow()
         self.register(
-            intervals_window,
+            intervals_window.main_window,
             "intervals_page"
         )
         self.register(
-            IntervalsGeneratorWindow(intervals_window),
+            intervals_window.generator_window,
             "intervals_generator_page"
         )
         self.register(
-            IntervalsSettingsWindow(intervals_window),
+            intervals_window.setting_window,
             "intervals_settings_page"
         )
 
@@ -63,34 +63,36 @@ class Window(QtWidgets.QMainWindow):
 
         microtones_window = MicrotonesWindow()
         self.register(
-            microtones_window,
+            microtones_window.main_window,
             "microtones_page"
         )
         self.register(
-            MicrotonesGeneratorWindow(microtones_window),
+            microtones_window.generator_window,
             "microtones_generator_page"
         )
         self.register(
-            MicrotonesSettingsWindow(microtones_window),
+            microtones_window.setting_window,
             "microtones_settings_page"
         )
 
         detuning_window = DetuningWindow()
         self.register(
-            detuning_window,
+            detuning_window.main_window,
             "detuning_page"
         )
         self.register(
-            DetuningGeneratorWindow(detuning_window),
+            detuning_window.generator_window,
             "detuning_generator_page"
         )
         self.register(
-            DetuningSettingsWindow(detuning_window),
+            detuning_window.setting_window,
             "detuning_settings_page"
         )
 
         self.register(
-            MainWindow(voices_window),
+            MainWindow(
+                voices_window=voices_window
+            ),
             "main_page"
         )
 

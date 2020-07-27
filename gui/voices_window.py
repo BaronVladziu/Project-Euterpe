@@ -408,6 +408,7 @@ class VoicesWindow():
                         )
                     self.exercise.play_example(memory_flush=True)
                     self.main_window.buttons["action_button"].change_text("Listen Again")
+                
                 elif self.labels[0].if_active:
                     self.exercise.play_example()
             elif button == "answer_button":
