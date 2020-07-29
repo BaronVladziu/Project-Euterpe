@@ -65,14 +65,14 @@ class MainWindow(PageWindow):
     def make_handleButton(self, button):
         def handleButton():
             if button == "ten_o_heights_button":
-                self.goto("ten_o_heights_page")
+                self.goto("ten_o_heights_instruction_page")
             if button == "intervals_button":
-                self.goto("intervals_page")
+                self.goto("intervals_instruction_page")
             if button == "voices_button":
                 self.voices_window.reset_labels()
-                self.goto("voices_page")
+                self.goto("voices_instruction_page")
             if button == "microtones_button":
-                self.goto("microtones_page")
+                self.goto("microtones_instruction_page")
             if button == "detuning_button":
-                self.goto("detuning_page")
+                self.goto("detuning_instruction_page")
         return handleButton

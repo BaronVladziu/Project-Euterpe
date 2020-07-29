@@ -4,7 +4,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from exercises.microtones_exercise import MicrotonesExercise
-from gui.page_window import PageWindow
+from gui.exercise_window import ExerciseInstructionWindow, ExerciseMainWindow, ExerciseSettingsWindow
 from gui.picture_label import PictureLabel
 from notes.height import Height
 from notes.interval import Interval
@@ -15,16 +15,29 @@ from synthesis.sine_synthesizer import SineSynthesizer
 from synthesis.square_synthesizer import SquareSynthesizer
 from synthesis.triangle_synthesizer import TriangleSynthesizer
 
-class MicrotonesWindow(PageWindow):
+
+class MicrotonesWindow():
     def __init__(self):
-        super().__init__()
-        central_widget = QtWidgets.QWidget(self)
-        self.setCentralWidget(central_widget)
-        grid_layout = QtWidgets.QGridLayout(central_widget)
+        # Add exercise class
+        self.exercise = MicrotonesExercise(
+            sampling_frequency=44100
+        )
+
+        # === INSTRUCTION WINDOW ===
+        self.instruction_window = ExerciseInstructionWindow(
+            instruction="<MICROTONES EXERCISE INSTRUCTION>",
+            back_button_name="back_from_instruction_button",
+            forward_button_name="forward_from_instruction_button",
+            button_method=self.make_handleButton
+        )
+
+        # === MAIN WINDOW ===
+        self.main_window = ExerciseMainWindow()
 
         # Add picture
+        self.central_widget = QtWidgets.QWidget(self.main_window)
         self.label = PictureLabel('graphics/intervals2.png')
-        grid_layout.addWidget(
+        self.main_window.grid_layout.addWidget(
             self.label,
             0, 0,
             1, 6,
@@ -34,85 +47,250 @@ class MicrotonesWindow(PageWindow):
         self.label.set_left_click_event(self.press_event)
 
         # Add button to main page
-        back_button = QtWidgets.QPushButton("Back", self)
-        grid_layout.addWidget(
-            back_button,
-            1, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        back_button.clicked.connect(
-            self.make_handleButton("back_button")
+        self.main_window.add_button(
+            name="back_button",
+            position=0,
+            size=1,
+            text="Back",
+            method=self.make_handleButton
         )
 
         # Add state label
-        self.state_label = QtWidgets.QLabel()
-        self.state_label.setText("Press button to generate new example -->")
-        grid_layout.addWidget(
-            self.state_label,
-            1, 1,
-            1, 2,
-            alignment=QtCore.Qt.AlignCenter
+        self.main_window.add_state_label(
+            text="Press button to generate new example -->",
+            position=1,
+            size=2
         )
 
         # Add action button
-        self.action_button = QtWidgets.QPushButton("Generate New Microtonal Interval", self)
-        grid_layout.addWidget(
-            self.action_button,
-            1, 3,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.action_button.clicked.connect(
-            self.make_handleButton("action_button")
+        self.main_window.add_button(
+            name="action_button",
+            position=3,
+            size=1,
+            text="Generate New Microtonal Interval",
+            method=self.make_handleButton
         )
 
         # Add button to settings page
-        settings_button = QtWidgets.QPushButton("Exercise Settings", self)
-        grid_layout.addWidget(
-            settings_button,
-            1, 4,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        settings_button.clicked.connect(
-            self.make_handleButton("settings_button")
+        self.main_window.add_button(
+            name="settings_button",
+            position=4,
+            size=1,
+            text="Exercise Settings",
+            method=self.make_handleButton
         )
 
         # Add button to generator page
-        generator_button = QtWidgets.QPushButton("Sound Generator", self)
-        grid_layout.addWidget(
-            generator_button,
-            1, 5,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        generator_button.clicked.connect(
-            self.make_handleButton("generator_button")
+        self.main_window.add_button(
+            name="generator_button",
+            position=5,
+            size=1,
+            text="Sound Generator",
+            method=self.make_handleButton
         )
 
-        # Add exercise class
-        self.exercise = MicrotonesExercise(
-            sampling_frequency=44100
+        # === GENERATOR SETTINGS WINDOW ===
+        self.generator_window = ExerciseSettingsWindow()
+
+        # Add volume setting
+        self.generator_window.add_setting(
+            name="volume",
+            text="Volume:",
+            values=[
+                "0.0",
+                "0.1",
+                "0.2",
+                "0.3",
+                "0.4",
+                "0.5",
+                "0.6",
+                "0.7",
+                "0.8",
+                "0.9",
+                "1.0"
+            ],
+            default_option_index=10,
+            setting_method=self.volume_changed
         )
 
+        # Add synthesizer type setting
+        self.generator_window.add_setting(
+            name="synthesizer_type",
+            text="Synthesizer Type:",
+            values=[
+                "Sine",
+                "Saw",
+                "Triangle",
+                "Square",
+                "Noise"
+            ],
+            default_option_index=2,
+            setting_method=self.synthesizer_type_changed
+        )
+
+        # Add sampling frequency setting
+        self.generator_window.add_setting(
+            name="sampling_frequency",
+            text="Sampling Frequency:",
+            values=[
+                "8000",
+                "16000",
+                "22050",
+                "44100",
+                "48000",
+                "96000",
+                "192000"
+            ],
+            default_option_index=3,
+            setting_method=self.sampling_frequency_changed
+        )
+
+        # Add play type setting
+        self.generator_window.add_setting(
+            name="play_type",
+            text="Play Type:",
+            values=[
+                "Upwards",
+                "Downwards",
+                "Upwards with hold",
+                "Downwards with hold",
+                "Together"
+            ],
+            default_option_index=0,
+            setting_method=self.play_type_changed
+        )
+
+        # Add button to microtones page
+        self.generator_window.add_button(
+            name="back_from_generator",
+            text="Back",
+            button_method=self.make_handleButton
+        )
+
+        # === EXERCISE SETTINGS WINDOW ===
+        self.setting_window = ExerciseSettingsWindow()
+
+        # Add scale setting
+        self.setting_window.add_setting(
+            name="interval_scale",
+            text="Interval Scale:",
+            values=[
+                "Whole Tone Fractions",
+                "Thirds",
+                "Fifths"
+            ],
+            default_option_index=0,
+            setting_method=self.scale_changed
+        )
+
+        # Add lowest height setting
+        self.setting_window.add_setting(
+            name="lowest_height",
+            text="Lowest Height:",
+            values=[
+                "C0",
+                "C1",
+                "C2",
+                "C3",
+                "C4",
+                "C5",
+                "C6",
+                "C7"
+            ],
+            default_option_index=3,
+            setting_method=self.lowest_height_changed
+        )
+
+        # Add highest height setting
+        self.setting_window.add_setting(
+            name="highest_height",
+            text="Highest Height:",
+            values=[
+                "C0",
+                "C1",
+                "C2",
+                "C3",
+                "C4",
+                "C5",
+                "C6",
+                "C7"
+            ],
+            default_option_index=4,
+            setting_method=self.highest_height_changed
+        )
+
+        # Add possible detune setting
+        self.setting_window.add_setting(
+            name="possible_detune",
+            text="Possible Detune:",
+            values=[
+                "0",
+                "0.5",
+                "1",
+                "2"
+            ],
+            default_option_index=1,
+            setting_method=self.possible_detune_changed
+        )
+
+        # Add possible error setting
+        self.setting_window.add_setting(
+            name="possible_error",
+            text="Possible Error:",
+            values=[
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "10"
+            ],
+            default_option_index=2,
+            setting_method=self.possible_error_changed
+        )
+
+        # Add button to microtones page
+        self.setting_window.add_button(
+            name="back_from_settings",
+            text="Back",
+            button_method=self.make_handleButton
+        )
+    
     def reset_window(self):
-        self.state_label.setText("Press button to generate new example -->")
-        self.action_button.setText("Generate New Microtonal Interval")
+        self.main_window.reset_window()
         self.label.if_active = False
 
     def make_handleButton(self, button):
         def handleButton():
             if button == "settings_button":
-                self.goto("microtones_settings_page")
+                self.main_window.goto("microtones_settings_page")
             elif button == "generator_button":
-                self.goto("microtones_generator_page")
+                self.main_window.goto("microtones_generator_page")
+            elif button == "back_from_instruction_button":
+                self.instruction_window.goto("main_page")
+            elif button == "forward_from_instruction_button":
+                self.instruction_window.goto("microtones_page")
             elif button == "back_button":
                 self.label.if_active = False
-                self.goto("main_page")
+                self.main_window.goto("main_page")
+            elif button == "back_from_generator":
+                self.generator_window.goto("microtones_page")
+            elif button == "back_from_settings":
+                self.reset_window()
+                self.setting_window.goto("microtones_page")
             elif button == "action_button":
                 if not self.label.if_active:
+                    # Reset label
                     self.label.reset()
-                    self.state_label.setText("Click near correct value on figure above")
+                    self.main_window.state_label.change_text(
+                        "Click near correct values on figure above"
+                    )
+
+                    # Create new example
                     self.exercise.generate_new_example()
                     self.exercise.play_example()
-                    self.action_button.setText("Listen Again")
+                    self.main_window.buttons["action_button"].change_text("Listen Again")
+                
                 elif self.label.if_active:
                     self.exercise.play_example()
         return handleButton
@@ -126,7 +304,7 @@ class MicrotonesWindow(PageWindow):
             answer
         )
         if if_correct:
-            self.state_label.setText(
+            self.main_window.state_label.change_text(
                 "CORRECT! Pressed: "\
                 + "{:.2f}".format(answer)\
                 + "±"\
@@ -135,7 +313,7 @@ class MicrotonesWindow(PageWindow):
                 + "{:.2f}".format(true_value)
             )
         else:
-            self.state_label.setText(
+            self.main_window.state_label.change_text(
                 "WRONG :c Pressed: "\
                 + "{:.2f}".format(answer)\
                 + "±"\
@@ -144,385 +322,75 @@ class MicrotonesWindow(PageWindow):
                 + "{:.2f}".format(true_value)\
                 + "c"
             )
-        self.action_button.setText("Generate New Microtone Interval")
+        self.main_window.buttons["action_button"].reset_text()
         self.label.mark_correct_answer(if_correct, true_value/2*3 + 10)
 
-
-class MicrotonesGeneratorWindow(PageWindow):
-    def __init__(self, parent:MicrotonesWindow):
-        super().__init__()
-        self.parent = parent
-
-        central_widget = QtWidgets.QWidget(self)
-        self.setCentralWidget(central_widget)
-        grid_layout = QtWidgets.QGridLayout(central_widget)
-
-        # Add volume setting
-        self.volume_label = QtWidgets.QLabel()
-        self.volume_label.setText("Volume:")
-        grid_layout.addWidget(
-            self.volume_label,
-            0, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.volume_list = QtWidgets.QComboBox()
-        self.volume_list.addItems([
-            "0.0",
-            "0.1",
-            "0.2",
-            "0.3",
-            "0.4",
-            "0.5",
-            "0.6",
-            "0.7",
-            "0.8",
-            "0.9",
-            "1.0"
-        ])
-        self.volume_list.setCurrentIndex(10)
-        grid_layout.addWidget(
-            self.volume_list,
-            0, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.volume_list.currentIndexChanged.connect(
-            self.volume_changed
-        )
-        self.volume_changed()
-
-        # Add synthesizer type setting
-        self.synthesizer_type_label = QtWidgets.QLabel()
-        self.synthesizer_type_label.setText("Synthesizer Type:")
-        grid_layout.addWidget(
-            self.synthesizer_type_label,
-            1, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.synthesizer_type_list = QtWidgets.QComboBox()
-        self.synthesizer_type_list.addItems([
-            "Sine",
-            "Saw",
-            "Triangle",
-            "Square",
-            "Noise"
-        ])
-        self.synthesizer_type_list.setCurrentIndex(2)
-        grid_layout.addWidget(
-            self.synthesizer_type_list,
-            1, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.synthesizer_type_list.currentIndexChanged.connect(
-            self.synthesizer_type_changed
-        )
-        self.synthesizer_type_changed()
-
-        # Add sampling frequency setting
-        self.sampling_frequency_label = QtWidgets.QLabel()
-        self.sampling_frequency_label.setText("Sampling Frequency:")
-        grid_layout.addWidget(
-            self.sampling_frequency_label,
-            2, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.sampling_frequency_list = QtWidgets.QComboBox()
-        self.sampling_frequency_list.addItems([
-            "8000",
-            "16000",
-            "22050",
-            "44100",
-            "48000",
-            "96000",
-            "192000"
-        ])
-        self.sampling_frequency_list.setCurrentIndex(3)
-        grid_layout.addWidget(
-            self.sampling_frequency_list,
-            2, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.sampling_frequency_list.currentIndexChanged.connect(
-            self.sampling_frequency_changed
-        )
-        self.sampling_frequency_changed()
-
-        # Add play type setting
-        self.play_type_label = QtWidgets.QLabel()
-        self.play_type_label.setText("Play Type:")
-        grid_layout.addWidget(
-            self.play_type_label,
-            3, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.play_type_list = QtWidgets.QComboBox()
-        self.play_type_list.addItems([
-            "Upwards",
-            "Downwards",
-            "Upwards with hold",
-            "Downwards with hold",
-            "Together"
-        ])
-        self.play_type_list.setCurrentIndex(0)
-        grid_layout.addWidget(
-            self.play_type_list,
-            3, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.play_type_list.currentIndexChanged.connect(
-            self.play_type_changed
-        )
-        self.play_type_changed()
-
-        # Add button to microtones page
-        back_button = QtWidgets.QPushButton("Back", self)
-        grid_layout.addWidget(
-            back_button,
-            4, 0,
-            1, 2,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        back_button.clicked.connect(
-            self.make_handleButton("back_button")
-        )
-
+    # === EXERCISE GENERATOR METHODS ===
     def volume_changed(self):
-        self.parent.exercise.set_volume(
-            float(self.volume_list.currentText())
+        self.exercise.set_volume(
+            float(self.generator_window.get_setting("volume"))
         )
 
     def synthesizer_type_changed(self):
-        if self.synthesizer_type_list.currentText() == "Sine":
-            self.parent.exercise.set_synthesizer(
+        if self.generator_window.get_setting("synthesizer_type") == "Sine":
+            self.exercise.set_synthesizer(
                 SineSynthesizer
             )
-        elif self.synthesizer_type_list.currentText() == "Saw":
-            self.parent.exercise.set_synthesizer(
+        elif self.generator_window.get_setting("synthesizer_type") == "Saw":
+            self.exercise.set_synthesizer(
                 SawSynthesizer
             )
-        elif self.synthesizer_type_list.currentText() == "Triangle":
-            self.parent.exercise.set_synthesizer(
+        elif self.generator_window.get_setting("synthesizer_type") == "Triangle":
+            self.exercise.set_synthesizer(
                 TriangleSynthesizer
             )
-        elif self.synthesizer_type_list.currentText() == "Square":
-            self.parent.exercise.set_synthesizer(
+        elif self.generator_window.get_setting("synthesizer_type") == "Square":
+            self.exercise.set_synthesizer(
                 SquareSynthesizer
             )
-        elif self.synthesizer_type_list.currentText() == "Noise":
-            self.parent.exercise.set_synthesizer(
+        elif self.generator_window.get_setting("synthesizer_type") == "Noise":
+            self.exercise.set_synthesizer(
                 NoiseSynthesizer
             )
         else:
             raise RuntimeError(
-                '[MicrotonesGeneratorWindow::synthesizer_type_changed()] Unknown synthesizer "'\
-                + self.synthesizer_type_list.currentText()\
+                '[VoicesGeneratorWindow::synthesizer_type_changed()] Unknown synthesizer "'\
+                + self.generator_window.get_setting("synthesizer_type")\
                 + '"!'
             )
 
     def sampling_frequency_changed(self):
-        self.parent.exercise.set_sampling_frequency(
-            int(self.sampling_frequency_list.currentText())
+        self.exercise.set_sampling_frequency(
+            int(self.generator_window.get_setting("sampling_frequency"))
         )
 
     def play_type_changed(self):
-        self.parent.exercise.set_play_type(
-            self.play_type_list.currentText()
+        self.exercise.set_play_type(
+            self.generator_window.get_setting("play_type")
         )
 
-    def make_handleButton(self, button):
-        def handleButton():
-            if button == "back_button":
-                self.goto("microtones_page")
-        return handleButton
-
-
-class MicrotonesSettingsWindow(PageWindow):
-    def __init__(self, parent:MicrotonesWindow):
-        super().__init__()
-        self.parent = parent
-
-        central_widget = QtWidgets.QWidget(self)
-        self.setCentralWidget(central_widget)
-        grid_layout = QtWidgets.QGridLayout(central_widget)
-
-        # Add scale setting
-        self.scale_label = QtWidgets.QLabel()
-        self.scale_label.setText("Interval Scale:")
-        grid_layout.addWidget(
-            self.scale_label,
-            1, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.scale_list = QtWidgets.QComboBox()
-        self.scale_list.addItems([
-            "Whole Tone Fractions",
-            "Thirds",
-            "Fifths"
-        ])
-        self.scale_list.setCurrentIndex(0)
-        grid_layout.addWidget(
-            self.scale_list,
-            1, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.scale_list.currentIndexChanged.connect(
-            self.scale_changed
-        )
-        self.scale_changed()
-
-        # Add lowest height setting
-        self.lowest_height_label = QtWidgets.QLabel()
-        self.lowest_height_label.setText("Lowest Height:")
-        grid_layout.addWidget(
-            self.lowest_height_label,
-            2, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.lowest_height_list = QtWidgets.QComboBox()
-        self.lowest_height_list.addItems([
-            "C0",
-            "C1",
-            "C2",
-            "C3",
-            "C4",
-            "C5",
-            "C6",
-            "C7"
-        ])
-        self.lowest_height_list.setCurrentIndex(3)
-        grid_layout.addWidget(
-            self.lowest_height_list,
-            2, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.lowest_height_list.currentIndexChanged.connect(
-            self.lowest_height_changed
-        )
-        self.lowest_height_changed()
-
-        # Add highest height setting
-        self.highest_height_label = QtWidgets.QLabel()
-        self.highest_height_label.setText("Highest Height:")
-        grid_layout.addWidget(
-            self.highest_height_label,
-            3, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.highest_height_list = QtWidgets.QComboBox()
-        self.highest_height_list.addItems([
-            "C1",
-            "C2",
-            "C3",
-            "C4",
-            "C5",
-            "C6",
-            "C7",
-            "C8"
-        ])
-        self.highest_height_list.setCurrentIndex(4)
-        grid_layout.addWidget(
-            self.highest_height_list,
-            3, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.highest_height_list.currentIndexChanged.connect(
-            self.highest_height_changed
-        )
-        self.highest_height_changed()
-
-        # Add possible detune setting
-        self.possible_detune_label = QtWidgets.QLabel()
-        self.possible_detune_label.setText("Possible Detune:")
-        grid_layout.addWidget(
-            self.possible_detune_label,
-            4, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.possible_detune_list = QtWidgets.QComboBox()
-        self.possible_detune_list.addItems([
-            "0",
-            "0.5",
-            "1",
-            "2"
-        ])
-        self.possible_detune_list.setCurrentIndex(1)
-        grid_layout.addWidget(
-            self.possible_detune_list,
-            4, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.possible_detune_list.currentIndexChanged.connect(
-            self.possible_detune_changed
-        )
-        self.possible_detune_changed()
-
-        # Add possible error setting
-        self.possible_error_label = QtWidgets.QLabel()
-        self.possible_error_label.setText("Possible Error:")
-        grid_layout.addWidget(
-            self.possible_error_label,
-            5, 0,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.possible_error_list = QtWidgets.QComboBox()
-        self.possible_error_list.addItems([
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "10"
-        ])
-        self.possible_error_list.setCurrentIndex(2)
-        grid_layout.addWidget(
-            self.possible_error_list,
-            5, 1,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        self.possible_error_list.currentIndexChanged.connect(
-            self.possible_error_changed
-        )
-        self.possible_error_changed()
-
-        # Add button to microtones page
-        back_button = QtWidgets.QPushButton("Back", self)
-        grid_layout.addWidget(
-            back_button,
-            6, 0,
-            1, 2,
-            alignment=QtCore.Qt.AlignCenter
-        )
-        back_button.clicked.connect(
-            self.make_handleButton("back_button")
-        )
-
+    # === EXERCISE SETTINGS METHODS ===
     def scale_changed(self):
-        self.parent.exercise.set_interval_scale(
-            IntervalScale(self.scale_list.currentText())
+        self.exercise.set_interval_scale(
+            IntervalScale(self.setting_window.get_setting("interval_scale"))
         )
 
     def lowest_height_changed(self):
-        self.parent.exercise.set_lowest_height(
-            Height.from_name(self.lowest_height_list.currentText())
+        self.exercise.set_lowest_height(
+            Height.from_name(self.setting_window.get_setting("lowest_height"))
         )
 
     def highest_height_changed(self):
-        self.parent.exercise.set_highest_height(
-            Height.from_name(self.highest_height_list.currentText())
+        self.exercise.set_highest_height(
+            Height.from_name(self.setting_window.get_setting("highest_height"))
         )
 
     def possible_detune_changed(self):
-        self.parent.exercise.set_possible_detune(
-            float(self.possible_detune_list.currentText())
+        self.exercise.set_possible_detune(
+            float(self.setting_window.get_setting("possible_detune"))
         )
 
     def possible_error_changed(self):
-        self.parent.exercise.set_possible_error(
-            int(self.possible_error_list.currentText())
+        self.exercise.set_possible_error(
+            int(self.setting_window.get_setting("possible_error"))
         )
-
-    def make_handleButton(self, button):
-        def handleButton():
-            if button == "back_button":
-                self.parent.reset_window()
-                self.goto("microtones_page")
-        return handleButton
