@@ -24,7 +24,7 @@ class TenOHeightsWindow():
 
         # === INSTRUCTION WINDOW ===
         self.instruction_window = ExerciseInstructionWindow(
-            instruction="TEN_O_HEIGHT",
+            instruction="<TEN_O_HEIGHT EXERCISE INSTRUCTION>",
             back_button_name="back_from_instruction_button",
             forward_button_name="forward_from_instruction_button",
             button_method=self.make_handleButton

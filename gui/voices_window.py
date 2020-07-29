@@ -25,7 +25,7 @@ class VoicesWindow():
 
         # === INSTRUCTION WINDOW ===
         self.instruction_window = ExerciseInstructionWindow(
-            instruction="VOICES",
+            instruction="<VOICES EXERCISE INSTRUCTION>",
             back_button_name="back_from_instruction_button",
             forward_button_name="forward_from_instruction_button",
             button_method=self.make_handleButton
