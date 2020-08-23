@@ -25,7 +25,14 @@ class VoicesWindow():
 
         # === INSTRUCTION WINDOW ===
         self.instruction_window = ExerciseInstructionWindow(
-            instruction="<VOICES EXERCISE INSTRUCTION>",
+            instruction="\n\n\
+In this exercise your task is to recognise heights of all sounds in all chords you hear.\n\n\
+After pressing \"Generate New Example\" button a sequence of chords will be played.\n\n\
+Using left mouse button click on the black scale in such a place that the correct height\n\
+is between cyan lines. Use right mouse button to erase answers you want to adjust.\n\n\
+After you mark all heights press \"Check answer\" button to check if your answers\n\
+are correct. Correct answers will appear in green and incorrent will appear in red.\
+            ",
             back_button_name="back_from_instruction_button",
             forward_button_name="forward_from_instruction_button",
             button_method=self.make_handleButton
@@ -219,7 +226,7 @@ class VoicesWindow():
                 "Pythagorean (C-based) (A=440Hz)",
                 "Just (C-based) (A=440Hz)",
                 "Quarter-comma meantone (C-based) (A=440Hz)",
-                "Bach's (according to Werckmeister)"
+                "Bach's (according to Werckmeister) (A=440Hz)"
             ],
             default_option_index=0,
             setting_method=self.scale_changed
@@ -418,7 +425,7 @@ class VoicesWindow():
                         self.labels[0].add_unerasable_marker(
                             first_note.get_cents_from_a()/4 + 835
                         )
-                    self.exercise.play_example(memory_flush=True)
+                    self.exercise.play_example()
                     self.main_window.buttons["action_button"].change_text("Listen Again")
                 
                 elif self.labels[0].if_active:

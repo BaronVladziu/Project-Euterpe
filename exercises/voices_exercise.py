@@ -155,7 +155,7 @@ class VoicesExercise:
         if self._if_first_note_provided:
             return self._actual_example.get_height(0, 0)
 
-    def play_example(self, memory_flush=False):
+    def play_example(self):
         # Check exercise state
         if self._actual_example is None:
             raise RuntimeError(
@@ -165,20 +165,9 @@ class VoicesExercise:
             raise RuntimeError(
                 '[VoicesExercise::play_example()] No play type chosen!'
             )
-    
-        # Generate memory flush
-        signal = np.zeros(0)
-        if memory_flush:
-            signal = np.concatenate([
-                signal,
-                self._synthesizer.generate_memory_flush(
-                    lowest_height=self._lowest_height,
-                    highest_height=self._highest_height
-                ),
-                np.zeros(self._sampling_frequency)
-            ])
 
         # Play
+        signal = np.zeros(0)
         if self._play_type == 'Upwards':
             self._player.play(
                 np.concatenate([

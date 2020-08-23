@@ -25,7 +25,13 @@ class DetuningWindow():
 
         # === INSTRUCTION WINDOW ===
         self.instruction_window = ExerciseInstructionWindow(
-            instruction="<DETUNING EXERCISE INSTRUCTION>",
+            instruction="\n\n\
+In this exercise your task is to recognise the detuning of the melody you hear.\n\n\
+After pressing \"Generate New Detuned Melody\" button a melody will be played.\n\n\
+Using your mouse click on the black scale in such a place that the correct detuning is between\n\
+cyan lines. Then the correct answer will appear in green, if you answered correctly, or in red,\n\
+if you failed.\
+            ",
             back_button_name="back_from_instruction_button",
             forward_button_name="forward_from_instruction_button",
             button_method=self.make_handleButton
@@ -211,7 +217,7 @@ class DetuningWindow():
                 "Pythagorean (C-based) (A=440Hz)",
                 "Just (C-based) (A=440Hz)",
                 "Quarter-comma meantone (C-based) (A=440Hz)",
-                "Bach's (according to Werckmeister)"
+                "Bach's (according to Werckmeister) (A=440Hz)"
             ],
             default_option_index=0,
             setting_method=self.scale_changed

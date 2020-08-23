@@ -185,7 +185,7 @@ class DetuningExercise:
         for i in range(len(tuned_chords)):
             self._actual_example.add_chord(tuned_chords[i])
 
-    def play_example(self, memory_flush=False):
+    def play_example(self):
         # Check exercise state
         if self._actual_example is None:
             raise RuntimeError(

@@ -25,7 +25,13 @@ class IntervalsWindow():
 
         # === INSTRUCTION WINDOW ===
         self.instruction_window = ExerciseInstructionWindow(
-            instruction="<INTERVALS EXERCISE INSTRUCTION>",
+            instruction="\n\n\
+In this exercise your task is to recognise the length of the interval you hear.\n\n\
+After pressing \"Generate New Interval\" button an interval will be played.\n\n\
+Using your mouse click on the black scale in such a place that the correct length is between\n\
+cyan lines. Then the correct answer will appear in green, if you answered correctly, or in red,\n\
+if you failed.\
+            ",
             back_button_name="back_from_instruction_button",
             forward_button_name="forward_from_instruction_button",
             button_method=self.make_handleButton
@@ -181,7 +187,7 @@ class IntervalsWindow():
                 "Pythagorean (C-based) (A=440Hz)",
                 "Just (C-based) (A=440Hz)",
                 "Quarter-comma meantone (C-based) (A=440Hz)",
-                "Bach's (according to Werckmeister)"
+                "Bach's (according to Werckmeister) (A=440Hz)"
             ],
             default_option_index=0,
             setting_method=self.scale_changed
@@ -199,7 +205,8 @@ class IntervalsWindow():
                 "C4",
                 "C5",
                 "C6",
-                "C7"
+                "C7",
+                "C8"
             ],
             default_option_index=0,
             setting_method=self.lowest_height_changed
@@ -217,7 +224,8 @@ class IntervalsWindow():
                 "C5",
                 "C6",
                 "C7",
-                "C8"
+                "C8",
+                "C9"
             ],
             default_option_index=4,
             setting_method=self.highest_height_changed

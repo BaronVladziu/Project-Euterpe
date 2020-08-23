@@ -4,7 +4,6 @@
 import random
 
 import numpy as np
-import scipy.signal
 
 from notes.chord import Chord
 from notes.height import Height
@@ -46,8 +45,7 @@ class Synthesizer:
     def generate_frequency(
         self,
         frequency:float,
-        time:float,
-        antialiasing_order=20
+        time:float
     ) -> np.array:
         """
         Generate signal of given frequency and length.
@@ -62,17 +60,6 @@ class Synthesizer:
             frequency=frequency,
             time=time
         )
-
-        # Create lowpass filter
-        sos = scipy.signal.butter(
-            antialiasing_order,
-            self._sampling_frequency/2.2,
-            fs=self._sampling_frequency,
-            btype='lowpass',
-            output='sos')
-        
-        # Filter base signal
-        result = scipy.signal.sosfilt(sos, result)
 
         # Add fades
         fade_signal = np.concatenate([

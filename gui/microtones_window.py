@@ -25,7 +25,13 @@ class MicrotonesWindow():
 
         # === INSTRUCTION WINDOW ===
         self.instruction_window = ExerciseInstructionWindow(
-            instruction="<MICROTONES EXERCISE INSTRUCTION>",
+            instruction="\n\n\
+In this exercise your task is to recognise the length of the microtonal interval you hear.\n\n\
+After pressing \"Generate New Microtonal Interval\" button an interval will be played.\n\n\
+Using your mouse click on the black scale in such a place that the correct length is between\n\
+cyan lines. Then the correct answer will appear in green, if you answered correctly, or in red,\n\
+if you failed.\
+            ",
             back_button_name="back_from_instruction_button",
             forward_button_name="forward_from_instruction_button",
             button_method=self.make_handleButton
@@ -195,7 +201,8 @@ class MicrotonesWindow():
                 "C4",
                 "C5",
                 "C6",
-                "C7"
+                "C7",
+                "C8"
             ],
             default_option_index=3,
             setting_method=self.lowest_height_changed
@@ -206,16 +213,17 @@ class MicrotonesWindow():
             name="highest_height",
             text="Highest Height:",
             values=[
-                "C0",
                 "C1",
                 "C2",
                 "C3",
                 "C4",
                 "C5",
                 "C6",
-                "C7"
+                "C7",
+                "C8",
+                "C9"
             ],
-            default_option_index=4,
+            default_option_index=3,
             setting_method=self.highest_height_changed
         )
 
@@ -243,7 +251,9 @@ class MicrotonesWindow():
                 "3",
                 "4",
                 "5",
+                "7",
                 "10"
+                "15"
             ],
             default_option_index=2,
             setting_method=self.possible_error_changed

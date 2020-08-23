@@ -15,6 +15,7 @@ class IntervalScale:
             pass
 
         elif scale_type == 'Whole Tone Fractions':
+            self._intervals.append(Interval.from_cents(200.00))  # 1
             self._intervals.append(Interval.from_cents(100.00))  # 1/2
             self._intervals.append(Interval.from_cents(50.00))  # 1/4
             self._intervals.append(Interval.from_cents(25.00))  # 1/8
@@ -25,13 +26,15 @@ class IntervalScale:
         elif scale_type == 'Thirds':
             self._intervals.append(Interval.from_cents(400.00))  # 12-TET M3
             self._intervals.append(Interval.from_cents(386.31))  # 5:4
+            self._intervals.append(Interval.from_cents(350.00))  # 24-TET m3+1
             self._intervals.append(Interval.from_cents(315.64))  # 6:5
             self._intervals.append(Interval.from_cents(300.00))  # 12-TET m3
-            self._intervals.append(Interval.from_cents(266.87))  # 7:6
         elif scale_type == 'Fifths':
+            self._intervals.append(Interval.from_cents(737.59))  # Meantone wulf's
             self._intervals.append(Interval.from_cents(701.96))  # 3:2
             self._intervals.append(Interval.from_cents(700.00))  # TET-12 P5
             self._intervals.append(Interval.from_cents(696.77))  # TET-31 P5
+            self._intervals.append(Interval.from_cents(678.45))  # Pythagorean wulf's
 
         # Raise error
         else:

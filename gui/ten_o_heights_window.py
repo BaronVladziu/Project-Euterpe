@@ -24,7 +24,15 @@ class TenOHeightsWindow():
 
         # === INSTRUCTION WINDOW ===
         self.instruction_window = ExerciseInstructionWindow(
-            instruction="<TEN_O_HEIGHT EXERCISE INSTRUCTION>",
+            instruction="\n\n\
+In this exercise your task is to recognise the height (frequency) of the sound you hear.\n\n\
+After pressing \"Generate New Height\" button short melody will be played to help you erase all\n\
+sounds from your memory.\n\n\
+Then you will hear one second of silence and after that the sound, you need to find the height of.\n\n\
+Using your mouse click on the black scale in such a place that the correct frequency is between\n\
+cyan lines. Then the correct answer will appear in green, if you answered correctly, or in red,\n\
+if you failed.\
+            ",
             back_button_name="back_from_instruction_button",
             forward_button_name="forward_from_instruction_button",
             button_method=self.make_handleButton
@@ -165,7 +173,7 @@ class TenOHeightsWindow():
                 "Pythagorean (C-based) (A=440Hz)",
                 "Just (C-based) (A=440Hz)",
                 "Quarter-comma meantone (C-based) (A=440Hz)",
-                "Bach's (according to Werckmeister)"
+                "Bach's (according to Werckmeister) (A=440Hz)"
             ],
             default_option_index=0,
             setting_method=self.scale_changed
@@ -183,7 +191,8 @@ class TenOHeightsWindow():
                 "C4",
                 "C5",
                 "C6",
-                "C7"
+                "C7",
+                "C8"
             ],
             default_option_index=0,
             setting_method=self.lowest_height_changed
@@ -201,7 +210,8 @@ class TenOHeightsWindow():
                 "C5",
                 "C6",
                 "C7",
-                "C8"
+                "C8",
+                "C9"
             ],
             default_option_index=7,
             setting_method=self.highest_height_changed
