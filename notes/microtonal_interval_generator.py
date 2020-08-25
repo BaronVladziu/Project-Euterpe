@@ -28,7 +28,7 @@ class MicrotonalIntervalGenerator:
     def set_highest_height(self, highest_height:Height):
         self._highest_height = highest_height
 
-    def set_possible_detune(self, possible_detune:int):
+    def set_possible_detune(self, possible_detune:float):
         self._possible_detune = possible_detune
 
     def generate_interval(self) -> (Interval, Height, Height):

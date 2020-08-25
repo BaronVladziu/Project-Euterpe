@@ -46,7 +46,7 @@ if you failed.\
         self.main_window.grid_layout.addWidget(
             self.label,
             0, 0,
-            1, 6,
+            1, 7,
             QtCore.Qt.AlignCenter
         )
         self.label.set_move_event(self.move_event)
@@ -65,13 +65,13 @@ if you failed.\
         self.main_window.add_state_label(
             text="Press button to generate new example -->",
             position=1,
-            size=2
+            size=3
         )
 
         # Add action button
         self.main_window.add_button(
             name="action_button",
-            position=3,
+            position=4,
             size=1,
             text="Generate New Interval",
             method=self.make_handleButton
@@ -80,7 +80,7 @@ if you failed.\
         # Add button to settings page
         self.main_window.add_button(
             name="settings_button",
-            position=4,
+            position=5,
             size=1,
             text="Exercise Settings",
             method=self.make_handleButton
@@ -89,7 +89,7 @@ if you failed.\
         # Add button to generator page
         self.main_window.add_button(
             name="generator_button",
-            position=5,
+            position=6,
             size=1,
             text="Sound Generator",
             method=self.make_handleButton
@@ -372,7 +372,8 @@ if you failed.\
                 + "±"\
                 + str(int(self.exercise.get_possible_error()))\
                 + "c, Real value: "\
-                + "{:.2f}".format(true_value)
+                + "{:.2f}".format(true_value)\
+                + "c"
             )
         else:
             self.main_window.state_label.change_text(

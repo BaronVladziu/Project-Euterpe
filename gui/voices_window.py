@@ -30,7 +30,7 @@ In this exercise your task is to recognise heights of all sounds in all chords y
 After pressing \"Generate New Example\" button a sequence of chords will be played.\n\n\
 Using left mouse button click on the black scale in such a place that the correct height\n\
 is between cyan lines. Use right mouse button to erase answers you want to adjust.\n\n\
-After you mark all heights press \"Check answer\" button to check if your answers\n\
+After you mark all heights press \"Check Answer\" button to check if your answers\n\
 are correct. Correct answers will appear in green and incorrent will appear in red.\
             ",
             back_button_name="back_from_instruction_button",
@@ -46,7 +46,7 @@ are correct. Correct answers will appear in green and incorrent will appear in r
         self.main_window.grid_layout.addWidget(
             self.label_widget,
             0, 0,
-            1, 7,
+            1, 8,
             QtCore.Qt.AlignCenter
         )
         self.labels = list()
@@ -65,13 +65,13 @@ are correct. Correct answers will appear in green and incorrent will appear in r
         self.main_window.add_state_label(
             text="Press button to generate new example -->",
             position=1,
-            size=2
+            size=3
         )
 
         # Add action button
         self.main_window.add_button(
             name="action_button",
-            position=3,
+            position=4,
             size=1,
             text="Generate New Example",
             method=self.make_handleButton
@@ -80,16 +80,16 @@ are correct. Correct answers will appear in green and incorrent will appear in r
         # Add answer button
         self.main_window.add_button(
             name="answer_button",
-            position=4,
+            position=5,
             size=1,
-            text="Check answer",
+            text="Check Answer",
             method=self.make_handleButton
         )
 
         # Add button to settings page
         self.main_window.add_button(
             name="settings_button",
-            position=5,
+            position=6,
             size=1,
             text="Exercise Settings",
             method=self.make_handleButton
@@ -98,7 +98,7 @@ are correct. Correct answers will appear in green and incorrent will appear in r
         # Add button to generator page
         self.main_window.add_button(
             name="generator_button",
-            position=6,
+            position=7,
             size=1,
             text="Sound Generator",
             method=self.make_handleButton

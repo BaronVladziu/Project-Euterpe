@@ -372,7 +372,7 @@ class Synthesizer:
                         self._sampling_frequency*sound_delay*i
                     )),
                     self.generate_height(
-                        chord.get_height(chord.get_size() - i - 1),
+                        chord.get_height(i),
                         sound_delay*(chord.get_size() - i)
                     )
                 ])
@@ -413,7 +413,7 @@ class Synthesizer:
                         self._sampling_frequency*sound_delay*i
                     )),
                     self.generate_height(
-                        chord.get_height(i),
+                        chord.get_height(chord.get_size() - i - 1),
                         sound_delay*(chord.get_size() - i)
                     )
                 ])

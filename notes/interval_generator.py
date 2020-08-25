@@ -13,7 +13,7 @@ class IntervalGenerator:
         scale=Scale('12-TET (A=440Hz)'),
         lowest_height=Height.from_midi(21),
         highest_height=Height.from_midi(108),
-        possible_detune=1,
+        possible_detune=1.0,
         smallest_interval=Interval.from_name('unison'),
         largest_interval=Interval.from_name('octave')
     ):

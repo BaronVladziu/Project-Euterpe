@@ -13,7 +13,7 @@ class ChordGenerator:
         scale=Scale('12-TET (A=440Hz)'),
         lowest_height=Height.from_name('C2'),
         highest_height=Height.from_name('C6'),
-        possible_detune=1,
+        possible_detune=1.0,
         smallest_interval=Interval.from_name('unison'),
         largest_interval=Interval.from_name('octave'),
         chord_size=3
@@ -35,7 +35,7 @@ class ChordGenerator:
     def set_highest_height(self, highest_height:Height):
         self._highest_height = highest_height
 
-    def set_possible_detune(self, possible_detune:int):
+    def set_possible_detune(self, possible_detune:float):
         self._possible_detune = possible_detune
 
     def set_smallest_interval(self, smallest_interval:Interval):

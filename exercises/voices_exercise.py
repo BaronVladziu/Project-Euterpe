@@ -226,6 +226,10 @@ class VoicesExercise:
             for voice_id in range(self._actual_example.get_chord_size()):
                 correct_answers[-1].append(False)
 
+        # Add first note to user answers
+        if self._if_first_note_provided:
+            user_answers[0].append(self.get_first_note().get_cents_from_a())
+
         # Set hit answers to true
         for chord_id in range(self._actual_example.get_voice_length()):
             for voice_id in range(self._actual_example.get_chord_size()):

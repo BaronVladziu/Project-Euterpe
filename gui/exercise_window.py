@@ -6,6 +6,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from gui.button import Button
 from gui.page_window import PageWindow
 from gui.state_label import StateLabel
+from gui.style import Style
 
 
 class ExerciseInstructionWindow(PageWindow):
@@ -19,6 +20,7 @@ class ExerciseInstructionWindow(PageWindow):
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
         self.grid_layout = QtWidgets.QGridLayout(central_widget)
+        central_widget.setStyleSheet(Style.get_window_style())
 
         self.label = QtWidgets.QLabel()
         self.label.setText(instruction)
@@ -28,6 +30,7 @@ class ExerciseInstructionWindow(PageWindow):
             1, 2,
             QtCore.Qt.AlignCenter
         )
+        self.label.setStyleSheet(Style.get_text_style())
 
         self.back_button = Button("Back", self)
         self.grid_layout.addWidget(
@@ -36,6 +39,7 @@ class ExerciseInstructionWindow(PageWindow):
             1, 1,
             alignment=QtCore.Qt.AlignCenter
         )
+        self.back_button.setStyleSheet(Style.get_button_style())
         self.back_button.clicked.connect(
             button_method(back_button_name)
         )
@@ -47,6 +51,7 @@ class ExerciseInstructionWindow(PageWindow):
             1, 1,
             alignment=QtCore.Qt.AlignCenter
         )
+        self.forward_button.setStyleSheet(Style.get_button_style())
         self.forward_button.clicked.connect(
             button_method(forward_button_name)
         )
@@ -58,6 +63,7 @@ class ExerciseMainWindow(PageWindow):
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
         self.grid_layout = QtWidgets.QGridLayout(central_widget)
+        central_widget.setStyleSheet(Style.get_window_style())
 
         # Add buttons
         self.buttons = dict()
@@ -79,6 +85,7 @@ class ExerciseMainWindow(PageWindow):
             1, size,
             alignment=QtCore.Qt.AlignCenter
         )
+        self.buttons[name].setStyleSheet(Style.get_button_style())
         self.buttons[name].clicked.connect(
             method(name)
         )
@@ -91,6 +98,7 @@ class ExerciseMainWindow(PageWindow):
             1, size,
             alignment=QtCore.Qt.AlignCenter
         )
+        self.state_label.setStyleSheet(Style.get_text_style())
 
     def reset_window(self):
         self.state_label.reset_text()
@@ -105,6 +113,7 @@ class ExerciseSettingsWindow(PageWindow):
         central_widget = QtWidgets.QWidget(self)
         self.setCentralWidget(central_widget)
         self.grid_layout = QtWidgets.QGridLayout(central_widget)
+        central_widget.setStyleSheet(Style.get_window_style())
 
         self._settings = dict()
         self.buttons = dict()
@@ -123,6 +132,7 @@ class ExerciseSettingsWindow(PageWindow):
             len(self._settings) + len(self.buttons), 0,
             alignment=QtCore.Qt.AlignCenter
         )
+        setting_label.setStyleSheet(Style.get_text_style())
         setting_list = QtWidgets.QComboBox()
         setting_list.addItems(values)
         setting_list.setCurrentIndex(default_option_index)
@@ -131,6 +141,7 @@ class ExerciseSettingsWindow(PageWindow):
             len(self._settings) + len(self.buttons), 1,
             alignment=QtCore.Qt.AlignCenter
         )
+        setting_list.setStyleSheet(Style.get_list_style())
         setting_list.currentIndexChanged.connect(
             setting_method
         )
@@ -148,6 +159,7 @@ class ExerciseSettingsWindow(PageWindow):
             1, 2,
             alignment=QtCore.Qt.AlignCenter
         )
+        self.buttons[name].setStyleSheet(Style.get_button_style())
         self.buttons[name].clicked.connect(
             button_method(name)
         )

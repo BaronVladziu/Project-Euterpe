@@ -9,7 +9,7 @@ class Scale:
         Musical scale interpreted as the list of musical heights.
         """
         self._heights = list()
-        self._detune = 0
+        self._detune = 0.0
 
         if scale_type == None:
             pass
@@ -154,7 +154,7 @@ class Scale:
         self._heights.append(heaight)
         self._heights.sort(key=lambda x: x.cents, reverse=True)
 
-    def set_detune(self, detune:int) -> None:
+    def set_detune(self, detune:float) -> None:
         """
         Set detune to all heights of the scale.
 
@@ -162,7 +162,7 @@ class Scale:
         """
         self._detune = abs(detune)
 
-    def add_detune(self, detune:int) -> None:
+    def add_detune(self, detune:float) -> None:
         """
         Add detune to all heights of the scale.
 
@@ -174,7 +174,7 @@ class Scale:
         self,
         from_height:Height,
         to_height:Height,
-        detune=0
+        detune=0.0
     ) -> list:
         octave_shift = 0
         while self._heights[-1].get_cents_from_a()\

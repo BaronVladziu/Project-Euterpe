@@ -12,7 +12,7 @@ class HeightGenerator:
         scale=Scale('12-TET (A=440Hz)'),
         lowest_height=Height(21),
         highest_height=Height(108),
-        possible_detune=1
+        possible_detune=1.0
     ):
         self._scale = scale
         self._lowest_height = lowest_height
@@ -28,7 +28,7 @@ class HeightGenerator:
     def set_highest_height(self, highest_height:Height):
         self._highest_height = highest_height
 
-    def set_possible_detune(self, possible_detune:int):
+    def set_possible_detune(self, possible_detune:float):
         self._possible_detune = possible_detune
 
     def generate_height(self) -> Height:

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 class Interval:
-    def __init__(self, cents:int):
+    def __init__(self, cents:float):
         """
         Musical interval (distance between heights).
 
@@ -11,7 +11,7 @@ class Interval:
         self._cents = cents
 
     @staticmethod
-    def from_cents(cents:int) -> 'Interval':
+    def from_cents(cents:float) -> 'Interval':
         return Interval(cents)
 
     @staticmethod

@@ -84,7 +84,7 @@ class Height:
         return Height.from_midi(midi_id, detune)
 
     @staticmethod
-    def from_cents_from_a(cents:int) -> 'Height':
+    def from_cents_from_a(cents:float) -> 'Height':
         """
         Create new Height object.
 
