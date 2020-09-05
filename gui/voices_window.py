@@ -226,7 +226,7 @@ are correct. Correct answers will appear in green and incorrent will appear in r
                 "Pythagorean (C-based) (A=440Hz)",
                 "Just (C-based) (A=440Hz)",
                 "Quarter-comma meantone (C-based) (A=440Hz)",
-                "Bach's (according to Werckmeister) (A=440Hz)"
+                "Bach's (Werckmeister III) (A=440Hz)"
             ],
             default_option_index=0,
             setting_method=self.scale_changed

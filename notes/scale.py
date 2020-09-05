@@ -123,19 +123,19 @@ class Scale:
             self._pitches.append(Pitch.from_midi(69))
             self._pitches.append(Pitch.from_midi(70, 23.95))
             self._pitches.append(Pitch.from_midi(71, -6.84))
-        elif scale_type == 'Bach\'s (according to Werckmeister) (A=440Hz)':
-            self._pitches.append(Pitch.from_frequency(263.38))
-            self._pitches.append(Pitch.from_frequency(276.91))
-            self._pitches.append(Pitch.from_frequency(294.37))
-            self._pitches.append(Pitch.from_frequency(311.72))
-            self._pitches.append(Pitch.from_frequency(329.23))
-            self._pitches.append(Pitch.from_frequency(351.17))
-            self._pitches.append(Pitch.from_frequency(369.22))
-            self._pitches.append(Pitch.from_frequency(393.52))
-            self._pitches.append(Pitch.from_frequency(415.37))
-            self._pitches.append(Pitch.from_frequency(440.0))
-            self._pitches.append(Pitch.from_frequency(467.97))
-            self._pitches.append(Pitch.from_frequency(492.29))
+        elif scale_type == 'Bach\'s (Werckmeister III) (A=440Hz)':
+            self._pitches.append(Pitch.from_midi(60, 11.73))
+            self._pitches.append(Pitch.from_midi(61, 1.96))
+            self._pitches.append(Pitch.from_midi(62, 3.91))
+            self._pitches.append(Pitch.from_midi(63, 5.87))
+            self._pitches.append(Pitch.from_midi(64, 1.96))
+            self._pitches.append(Pitch.from_midi(65, 9.78))
+            self._pitches.append(Pitch.from_midi(66))
+            self._pitches.append(Pitch.from_midi(67, 7.82))
+            self._pitches.append(Pitch.from_midi(68, 3.91))
+            self._pitches.append(Pitch.from_midi(69))
+            self._pitches.append(Pitch.from_midi(70, 7.82))
+            self._pitches.append(Pitch.from_midi(71, 3.91))
 
         # Raise error
         else:
