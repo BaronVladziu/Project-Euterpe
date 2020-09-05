@@ -3,80 +3,80 @@
 
 import random
 
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 from notes.interval_scale import IntervalScale
 
 class MicrotonalIntervalGenerator:
     def __init__(self,
         scale=IntervalScale('Whole Tone Fractions'),
-        lowest_height=Height.from_name('C3'),
-        highest_height=Height.from_name('C5'),
+        lowest_pitch=Pitch.from_name('C3'),
+        highest_pitch=Pitch.from_name('C5'),
         possible_detune=0.5
     ):
         self._scale = scale
-        self._lowest_height = lowest_height
-        self._highest_height = highest_height
+        self._lowest_pitch = lowest_pitch
+        self._highest_pitch = highest_pitch
         self._possible_detune = possible_detune
 
     def set_scale(self, scale:IntervalScale):
         self._scale = scale
 
-    def set_lowest_height(self, lowest_height:Height):
-        self._lowest_height = lowest_height
+    def set_lowest_pitch(self, lowest_pitch:Pitch):
+        self._lowest_pitch = lowest_pitch
 
-    def set_highest_height(self, highest_height:Height):
-        self._highest_height = highest_height
+    def set_highest_pitch(self, highest_pitch:Pitch):
+        self._highest_pitch = highest_pitch
 
     def set_possible_detune(self, possible_detune:float):
         self._possible_detune = possible_detune
 
-    def generate_interval(self) -> (Interval, Height, Height):
-        # Generate first random height
-        height1 = Height.from_frequency(
+    def generate_interval(self) -> (Interval, Pitch, Pitch):
+        # Generate first random pitch
+        pitch1 = Pitch.from_frequency(
             random.uniform(
-                self._lowest_height.get_frequency(),
-                self._highest_height.get_frequency()
+                self._lowest_pitch.get_frequency(),
+                self._highest_pitch.get_frequency()
             )
         )
 
-        # Generate second random height
+        # Generate second random pitch
         output_interval = random.choice(
             self._scale.get_intervals()
         )
-        height2 = height1.add_interval(
+        pitch2 = pitch1.add_interval(
             output_interval
         )
-        if height2 == Height.higher(
-            self._highest_height,
-            height2
+        if pitch2 == Pitch.higher(
+            self._highest_pitch,
+            pitch2
         ):
-            height2 = height1.copy(
+            pitch2 = pitch1.copy(
                 detune=-output_interval.get_cents()
             )
-        if height2 == Height.lower(
-            self._lowest_height,
-            height2
+        if pitch2 == Pitch.lower(
+            self._lowest_pitch,
+            pitch2
         ):
             raise RuntimeError(
                 '[MicrotonalIntervalGenerator:generate_interval()] ' +
                 'Could not generate interval! ' +
-                'Make sure that lowest_height is sufficiently lower than highest_height!'
+                'Make sure that lowest_pitch is sufficiently lower than highest_pitch!'
             )
 
-        # Return interval and heights
-        output_height1 = Height.from_height(
-            height=Height.lower(height1, height2),
+        # Return interval and pitches
+        output_pitch1 = Pitch.from_pitch(
+            pitch=Pitch.lower(pitch1, pitch2),
             detune=random.uniform(
                 -self._possible_detune/2,
                 self._possible_detune/2
             )
         )
-        output_height2 = Height.from_height(
-            height=Height.higher(height1, height2),
+        output_pitch2 = Pitch.from_pitch(
+            pitch=Pitch.higher(pitch1, pitch2),
             detune=random.uniform(
                 -self._possible_detune/2,
                 self._possible_detune/2
             )
         )
-        return output_interval, output_height1, output_height2
+        return output_interval, output_pitch1, output_pitch2

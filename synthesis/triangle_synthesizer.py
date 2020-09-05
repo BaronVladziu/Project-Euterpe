@@ -4,7 +4,7 @@
 import numpy as np
 from scipy import signal
 
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 
 class TriangleSynthesizer:

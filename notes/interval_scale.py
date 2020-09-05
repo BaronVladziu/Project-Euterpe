@@ -63,7 +63,7 @@ class IntervalScale:
 
     def add_detune(self, detune:float) -> None:
         """
-        Add detune to all heights of the scale.
+        Add detune to all pitches of the scale.
 
         :detune: Detune from previous value.
         """

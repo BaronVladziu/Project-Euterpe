@@ -3,10 +3,10 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from exercises.ten_o_heights_exercise import TenOHeightsExercise
+from exercises.ten_o_pitches_exercise import TenOPitchesExercise
 from gui.exercise_window import ExerciseInstructionWindow, ExerciseMainWindow, ExerciseSettingsWindow
 from gui.picture_label import PictureLabel
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.scale import Scale
 from synthesis.noise_synthesizer import NoiseSynthesizer
 from synthesis.saw_synthesizer import SawSynthesizer
@@ -15,20 +15,20 @@ from synthesis.square_synthesizer import SquareSynthesizer
 from synthesis.triangle_synthesizer import TriangleSynthesizer
 
 
-class TenOHeightsWindow():
+class TenOPitchesWindow():
     def __init__(self):
         # Add exercise class
-        self.exercise = TenOHeightsExercise(
+        self.exercise = TenOPitchesExercise(
             sampling_frequency=44100
         )
 
         # === INSTRUCTION WINDOW ===
         self.instruction_window = ExerciseInstructionWindow(
             instruction="\n\n\
-In this exercise your task is to recognise the height (frequency) of the sound you hear.\n\n\
-After pressing \"Generate New Height\" button short melody will be played to help you erase all\n\
+In this exercise your task is to recognise the pitch (frequency) of the sound you hear.\n\n\
+After pressing \"Generate New Pitch\" button short melody will be played to help you erase all\n\
 sounds from your memory.\n\n\
-Then you will hear one second of silence and after that the sound, you need to find the height of.\n\n\
+Then you will hear one second of silence and after that the sound, you need to find the pitch of.\n\n\
 Using your mouse click on the black scale in such a place that the correct frequency is between\n\
 cyan lines. Then the correct answer will appear in green, if you answered correctly, or in red,\n\
 if you failed.\
@@ -43,7 +43,7 @@ if you failed.\
 
         # Add picture
         self.central_widget = QtWidgets.QWidget(self.main_window)
-        self.label = PictureLabel('graphics/heights1.png')
+        self.label = PictureLabel('graphics/pitches1.png')
         self.main_window.grid_layout.addWidget(
             self.label,
             0, 0,
@@ -74,7 +74,7 @@ if you failed.\
             name="action_button",
             position=4,
             size=1,
-            text="Generate New Height",
+            text="Generate New Pitch",
             method=self.make_handleButton
         )
 
@@ -152,7 +152,7 @@ if you failed.\
             setting_method=self.sampling_frequency_changed
         )
 
-        # Add button to ten_o_heights page
+        # Add button to ten_o_pitches page
         self.generator_window.add_button(
             name="back_from_generator",
             text="Back",
@@ -181,8 +181,8 @@ if you failed.\
 
         # Add scale setting
         self.setting_window.add_setting(
-            name="lowest_height",
-            text="Lowest Height:",
+            name="lowest_pitch",
+            text="Lowest Pitch:",
             values=[
                 "C0",
                 "C1",
@@ -195,13 +195,13 @@ if you failed.\
                 "C8"
             ],
             default_option_index=0,
-            setting_method=self.lowest_height_changed
+            setting_method=self.lowest_pitch_changed
         )
 
-        # Add highest height setting
+        # Add highest pitch setting
         self.setting_window.add_setting(
-            name="highest_height",
-            text="Highest Height:",
+            name="highest_pitch",
+            text="Highest Pitch:",
             values=[
                 "C1",
                 "C2",
@@ -214,7 +214,7 @@ if you failed.\
                 "C9"
             ],
             default_option_index=7,
-            setting_method=self.highest_height_changed
+            setting_method=self.highest_pitch_changed
         )
 
         # Add possible detune setting
@@ -267,7 +267,7 @@ if you failed.\
             setting_method=self.possible_error_changed
         )
 
-        # Add button to ten_o_heights page
+        # Add button to ten_o_pitches page
         self.setting_window.add_button(
             name="back_from_settings",
             text="Back",
@@ -281,21 +281,21 @@ if you failed.\
     def make_handleButton(self, button):
         def handleButton():
             if button == "settings_button":
-                self.main_window.goto("ten_o_heights_settings_page")
+                self.main_window.goto("ten_o_pitches_settings_page")
             elif button == "generator_button":
-                self.main_window.goto("ten_o_heights_generator_page")
+                self.main_window.goto("ten_o_pitches_generator_page")
             elif button == "back_from_instruction_button":
                 self.instruction_window.goto("main_page")
             elif button == "forward_from_instruction_button":
-                self.instruction_window.goto("ten_o_heights_page")
+                self.instruction_window.goto("ten_o_pitches_page")
             elif button == "back_button":
                 self.label.if_active = False
                 self.main_window.goto("main_page")
             elif button == "back_from_generator":
-                self.generator_window.goto("ten_o_heights_page")
+                self.generator_window.goto("ten_o_pitches_page")
             elif button == "back_from_settings":
                 self.reset_window()
-                self.setting_window.goto("ten_o_heights_page")
+                self.setting_window.goto("ten_o_pitches_page")
             elif button == "action_button":
                 if not self.label.if_active:
                     # Reset label
@@ -373,7 +373,7 @@ if you failed.\
             )
         else:
             raise RuntimeError(
-                '[TenOHeightsGeneratorWindow::synthesizer_type_changed()] Unknown synthesizer "'\
+                '[TenOPitchesGeneratorWindow::synthesizer_type_changed()] Unknown synthesizer "'\
                 + self.generator_window.get_setting("synthesizer_type")\
                 + '"!'
             )
@@ -389,14 +389,14 @@ if you failed.\
             Scale(self.setting_window.get_setting("scale"))
         )
 
-    def lowest_height_changed(self):
-        self.exercise.set_lowest_height(
-            Height.from_name(self.setting_window.get_setting("lowest_height"))
+    def lowest_pitch_changed(self):
+        self.exercise.set_lowest_pitch(
+            Pitch.from_name(self.setting_window.get_setting("lowest_pitch"))
         )
 
-    def highest_height_changed(self):
-        self.exercise.set_highest_height(
-            Height.from_name(self.setting_window.get_setting("highest_height"))
+    def highest_pitch_changed(self):
+        self.exercise.set_highest_pitch(
+            Pitch.from_name(self.setting_window.get_setting("highest_pitch"))
         )
 
     def possible_detune_changed(self):

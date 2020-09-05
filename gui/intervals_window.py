@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from exercises.intervals_exercise import IntervalsExercise
 from gui.exercise_window import ExerciseInstructionWindow, ExerciseMainWindow, ExerciseSettingsWindow
 from gui.picture_label import PictureLabel
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 from notes.scale import Scale
 from synthesis.noise_synthesizer import NoiseSynthesizer
@@ -193,10 +193,10 @@ if you failed.\
             setting_method=self.scale_changed
         )
 
-        # Add lowest height setting
+        # Add lowest pitch setting
         self.setting_window.add_setting(
-            name="lowest_height",
-            text="Lowest Height:",
+            name="lowest_pitch",
+            text="Lowest Pitch:",
             values=[
                 "C0",
                 "C1",
@@ -209,13 +209,13 @@ if you failed.\
                 "C8"
             ],
             default_option_index=0,
-            setting_method=self.lowest_height_changed
+            setting_method=self.lowest_pitch_changed
         )
 
-        # Add highest height setting
+        # Add highest pitch setting
         self.setting_window.add_setting(
-            name="highest_height",
-            text="Highest Height:",
+            name="highest_pitch",
+            text="Highest Pitch:",
             values=[
                 "C1",
                 "C2",
@@ -228,7 +228,7 @@ if you failed.\
                 "C9"
             ],
             default_option_index=4,
-            setting_method=self.highest_height_changed
+            setting_method=self.highest_pitch_changed
         )
 
         # Add smallest interval setting
@@ -438,14 +438,14 @@ if you failed.\
             Scale(self.setting_window.get_setting("scale"))
         )
 
-    def lowest_height_changed(self):
-        self.exercise.set_lowest_height(
-            Height.from_name(self.setting_window.get_setting("lowest_height"))
+    def lowest_pitch_changed(self):
+        self.exercise.set_lowest_pitch(
+            Pitch.from_name(self.setting_window.get_setting("lowest_pitch"))
         )
 
-    def highest_height_changed(self):
-        self.exercise.set_highest_height(
-            Height.from_name(self.setting_window.get_setting("highest_height"))
+    def highest_pitch_changed(self):
+        self.exercise.set_highest_pitch(
+            Pitch.from_name(self.setting_window.get_setting("highest_pitch"))
         )
 
     def smallest_interval_changed(self):

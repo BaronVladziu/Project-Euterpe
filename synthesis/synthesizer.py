@@ -6,7 +6,7 @@ import random
 import numpy as np
 
 from notes.chord import Chord
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 from synthesis.sine_synthesizer import SineSynthesizer
 
@@ -78,21 +78,21 @@ class Synthesizer:
 
         return result
 
-    def generate_height(self, height:Height, time:float) -> np.array:
+    def generate_pitch(self, pitch:Pitch, time:float) -> np.array:
         """
-        Generate signal of given length and height.
+        Generate signal of given length and pitch.
 
-        :height: Height of output sound.
+        :pitch: Pitch of output sound.
         :time: Length of sound in seconds.
 
         :returns: Output signal.
         """
-        return self.generate_frequency(height.get_frequency(), time)
+        return self.generate_frequency(pitch.get_frequency(), time)
 
     def generate_memory_flush(
         self,
-        lowest_height:Height,
-        highest_height:Height,
+        lowest_pitch:Pitch,
+        highest_pitch:Pitch,
         min_sounds=8,
         max_sounds=12,
         sound_play_time=0.2
@@ -100,8 +100,8 @@ class Synthesizer:
         """
         Generate series of random frequencies and random length.
 
-        :lowest_height: The lowest height
-        :highest_height: The highest height
+        :lowest_pitch: The lowest pitch
+        :highest_pitch: The highest pitch
         :min_sounds: Minimal number of sounds in a series.
         :max_sounds: Maximal number of sounds in a series.
         :sound_play_time: Length of every sound in seconds.
@@ -114,8 +114,8 @@ class Synthesizer:
                 output,
                 self.generate_frequency(
                     random.uniform(
-                        lowest_height.get_frequency(),
-                        highest_height.get_frequency()
+                        lowest_pitch.get_frequency(),
+                        highest_pitch.get_frequency()
                     ),
                     sound_play_time
                 )
@@ -124,8 +124,8 @@ class Synthesizer:
 
     def generate_interval_up(
         self,
-        lower_height:Height,
-        higher_height:Height,
+        lower_pitch:Pitch,
+        higher_pitch:Pitch,
         play_time=0.4,
         pause_time=0.2
     ) -> np.array:
@@ -135,23 +135,23 @@ class Synthesizer:
         - pause for <pause_time>
         - higher for <play_time>
 
-        :lower_height: The lower height
-        :higher_height: The higher height
+        :lower_pitch: The lower pitch
+        :higher_pitch: The higher pitch
         :play_time: Length of both sounds in seconds.
         :pause_time: Length of pause between sounds in seconds.
 
         :returns: Output signal.
         """
         return np.concatenate([
-            self.generate_height(lower_height, play_time),
+            self.generate_pitch(lower_pitch, play_time),
             np.zeros(int(self._sampling_frequency*pause_time)),
-            self.generate_height(higher_height, play_time)
+            self.generate_pitch(higher_pitch, play_time)
         ])
 
     def generate_interval_down(
         self,
-        lower_height:Height,
-        higher_height:Height,
+        lower_pitch:Pitch,
+        higher_pitch:Pitch,
         play_time=0.4,
         pause_time=0.2
     ) -> np.array:
@@ -161,23 +161,23 @@ class Synthesizer:
         - pause for <pause_time>
         - lower for <play_time>
 
-        :lower_height: The lower height
-        :higher_height: The higher height
+        :lower_pitch: The lower pitch
+        :higher_pitch: The higher pitch
         :play_time: Length of both sounds in seconds.
         :pause_time: Length of pause between sounds in seconds.
 
         :returns: Output signal.
         """
         return np.concatenate([
-            self.generate_height(higher_height, play_time),
+            self.generate_pitch(higher_pitch, play_time),
             np.zeros(int(self._sampling_frequency*pause_time)),
-            self.generate_height(lower_height, play_time)
+            self.generate_pitch(lower_pitch, play_time)
         ])
 
     def generate_interval_up_hold(
         self,
-        lower_height:Height,
-        higher_height:Height,
+        lower_pitch:Pitch,
+        higher_pitch:Pitch,
         play_time=0.5,
         pause_time=0
     ) -> np.array:
@@ -187,29 +187,29 @@ class Synthesizer:
         - pause for <pause_time>
         - lower + higher for <play_time>
 
-        :lower_height: The lower height
-        :higher_height: The higher height
+        :lower_pitch: The lower pitch
+        :higher_pitch: The higher pitch
         :play_time: Length of both sounds in seconds.
         :pause_time: Length of pause between sounds in seconds.
 
         :returns: Output signal.
         """
         return np.concatenate([
-            self.generate_height(lower_height, play_time),
+            self.generate_pitch(lower_pitch, play_time),
             np.zeros(int(self._sampling_frequency*pause_time)),
-            self.generate_height(
-                lower_height,
+            self.generate_pitch(
+                lower_pitch,
                 play_time
-            ) + self.generate_height(
-                higher_height,
+            ) + self.generate_pitch(
+                higher_pitch,
                 play_time
             )
         ])
 
     def generate_interval_down_hold(
         self,
-        lower_height:Height,
-        higher_height:Height,
+        lower_pitch:Pitch,
+        higher_pitch:Pitch,
         play_time=0.5,
         pause_time=0
     ) -> np.array:
@@ -219,46 +219,46 @@ class Synthesizer:
         - pause for <pause_time>
         - lower + higher for <play_time>
 
-        :lower_height: The lower height
-        :higher_height: The higher height
+        :lower_pitch: The lower pitch
+        :higher_pitch: The higher pitch
         :play_time: Length of both sounds in seconds.
         :pause_time: Length of pause between sounds in seconds.
 
         :returns: Output signal.
         """
         return np.concatenate([
-            self.generate_height(higher_height, play_time),
+            self.generate_pitch(higher_pitch, play_time),
             np.zeros(int(self._sampling_frequency*pause_time)),
-            self.generate_height(
-                lower_height,
+            self.generate_pitch(
+                lower_pitch,
                 play_time
-            ) + self.generate_height(
-                higher_height,
+            ) + self.generate_pitch(
+                higher_pitch,
                 play_time
             )
         ])
 
     def generate_interval_together(
         self,
-        lower_height:Height,
-        higher_height:Height,
+        lower_pitch:Pitch,
+        higher_pitch:Pitch,
         play_time=1
     ) -> np.array:
         """
         Generate signal of given interval. Play order:
         - lower + higher for <play_time>
 
-        :lower_height: The lower height
-        :higher_height: The higher height
+        :lower_pitch: The lower pitch
+        :higher_pitch: The higher pitch
         :play_time: Length of both sounds in seconds.
 
         :returns: Output signal.
         """
-        return self.generate_height(
-            lower_height,
+        return self.generate_pitch(
+            lower_pitch,
             play_time
-        ) + self.generate_height(
-            higher_height,
+        ) + self.generate_pitch(
+            higher_pitch,
             play_time
         )
 
@@ -271,7 +271,7 @@ class Synthesizer:
     ) -> np.array:
         """
         Generate signal of given chords.
-        Heights will be played from the lowest to the highest
+        Pitches will be played from the lowest to the highest
         each for <play_time> seconds
         with <pause_time> seconds of silence between.
 
@@ -287,8 +287,8 @@ class Synthesizer:
             for i in range(chord.get_size()):
                 output = np.concatenate([
                     output,
-                    self.generate_height(
-                        chord.get_height(i),
+                    self.generate_pitch(
+                        chord.get_pitch(i),
                         sound_play_time
                     ),
                     np.zeros(int(
@@ -312,7 +312,7 @@ class Synthesizer:
     ) -> np.array:
         """
         Generate signal of given chords.
-        Heights will be played from the highest to the lowest
+        Pitches will be played from the highest to the lowest
         each for <play_time> seconds
         with <pause_time> seconds of silence between.
 
@@ -328,8 +328,8 @@ class Synthesizer:
             for i in range(chord.get_size()):
                 output = np.concatenate([
                     output,
-                    self.generate_height(
-                        chord.get_height(chord.get_size() - i - 1),
+                    self.generate_pitch(
+                        chord.get_pitch(chord.get_size() - i - 1),
                         sound_play_time
                     ),
                     np.zeros(int(
@@ -352,11 +352,11 @@ class Synthesizer:
     ) -> np.array:
         """
         Generate signal of given chords.
-        Heights will be played from the lowest to the highest
+        Pitches will be played from the lowest to the highest
         adding new one every <sound_delay> seconds.
 
         :chords: List of chords to play.
-        :sound_delay: Delay of next height.
+        :sound_delay: Delay of next pitch.
         :chord_pause_time: Length of pause between chords in seconds.
 
         :returns: Output signal.
@@ -371,8 +371,8 @@ class Synthesizer:
                     np.zeros(int(
                         self._sampling_frequency*sound_delay*i
                     )),
-                    self.generate_height(
-                        chord.get_height(i),
+                    self.generate_pitch(
+                        chord.get_pitch(i),
                         sound_delay*(chord.get_size() - i)
                     )
                 ])
@@ -393,11 +393,11 @@ class Synthesizer:
     ) -> np.array:
         """
         Generate signal of given chords.
-        Heights will be played from the highest to the lowest
+        Pitches will be played from the highest to the lowest
         adding new one every <sound_delay> seconds.
 
         :chords: List of chords to play.
-        :sound_delay: Delay of next height.
+        :sound_delay: Delay of next pitch.
         :chord_pause_time: Length of pause between chords in seconds.
 
         :returns: Output signal.
@@ -412,8 +412,8 @@ class Synthesizer:
                     np.zeros(int(
                         self._sampling_frequency*sound_delay*i
                     )),
-                    self.generate_height(
-                        chord.get_height(chord.get_size() - i - 1),
+                    self.generate_pitch(
+                        chord.get_pitch(chord.get_size() - i - 1),
                         sound_delay*(chord.get_size() - i)
                     )
                 ])
@@ -434,7 +434,7 @@ class Synthesizer:
     ) -> np.array:
         """
         Generate signal of given chords.
-        Heights will be played together for <play_time_per_sound>*<chords.get_size()> seconds.
+        Pitches will be played together for <play_time_per_sound>*<chords.get_size()> seconds.
 
         :chords: List of chords to play.
         :play_time_per_sound: Length of chord in seconds divided by the number of sounds in a chord.
@@ -447,8 +447,8 @@ class Synthesizer:
                 self._sampling_frequency*play_time_per_sound*chord.get_size()
             ))
             for i in range(chord.get_size()):
-                chord_signal += self.generate_height(
-                        chord.get_height(i),
+                chord_signal += self.generate_pitch(
+                        chord.get_pitch(i),
                         play_time_per_sound*chord.get_size()
                     )
             output = np.concatenate([

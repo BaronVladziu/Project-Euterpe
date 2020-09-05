@@ -3,21 +3,21 @@
 
 import numpy as np
 
-from notes.height import Height
-from notes.height_generator import HeightGenerator
+from notes.pitch import Pitch
+from notes.pitch_generator import PitchGenerator
 from synthesis.player import Player
 from notes.scale import Scale
 from synthesis.synthesizer import Synthesizer
 
 
-class TenOHeightsExercise:
+class TenOPitchesExercise:
     def __init__(self, sampling_frequency:int):
         # exercise settings
         self._sampling_frequency = sampling_frequency
         self._volume = None
         self._scale = None
-        self._lowest_height = None
-        self._highest_height = None
+        self._lowest_pitch = None
+        self._highest_pitch = None
         self._possible_detune = None
         self._synthesizer = Synthesizer(sampling_frequency)
         self._possible_error = None
@@ -38,11 +38,11 @@ class TenOHeightsExercise:
     def set_scale(self, scale:Scale):
         self._scale = scale
 
-    def set_lowest_height(self, lowest_height:Height):
-        self._lowest_height = lowest_height
+    def set_lowest_pitch(self, lowest_pitch:Pitch):
+        self._lowest_pitch = lowest_pitch
 
-    def set_highest_height(self, highest_height:Height):
-        self._highest_height = highest_height
+    def set_highest_pitch(self, highest_pitch:Pitch):
+        self._highest_pitch = highest_pitch
 
     def set_possible_detune(self, possible_detune:float):
         self._possible_detune = possible_detune
@@ -60,19 +60,19 @@ class TenOHeightsExercise:
         self._possible_error = possible_error
 
     def generate_new_example(self):
-        height_generator = HeightGenerator(
+        pitch_generator = PitchGenerator(
             scale=self._scale,
-            lowest_height=self._lowest_height,
-            highest_height=self._highest_height,
+            lowest_pitch=self._lowest_pitch,
+            highest_pitch=self._highest_pitch,
             possible_detune=self._possible_detune
         )
-        self._actual_example = height_generator.generate_height()
+        self._actual_example = pitch_generator.generate_pitch()
 
     def play_example(self, memory_flush=False):
         # Check exercise state
         if self._actual_example is None:
             raise RuntimeError(
-                '[TenOHeightsExercise::play_example()] No example to play!'
+                '[TenOPitchesExercise::play_example()] No example to play!'
             )
 
         # Generate memory flush
@@ -81,8 +81,8 @@ class TenOHeightsExercise:
             signal = np.concatenate([
                 signal,
                 self._synthesizer.generate_memory_flush(
-                    lowest_height=self._lowest_height,
-                    highest_height=self._highest_height
+                    lowest_pitch=self._lowest_pitch,
+                    highest_pitch=self._highest_pitch
                 ),
                 np.zeros(self._sampling_frequency)
             ])
@@ -91,8 +91,8 @@ class TenOHeightsExercise:
         self._player.play(
             np.concatenate([
                 signal,
-                self._synthesizer.generate_height(
-                    height=self._actual_example,
+                self._synthesizer.generate_pitch(
+                    pitch=self._actual_example,
                     time=1
                 )
             ])

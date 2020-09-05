@@ -32,12 +32,12 @@ class MainWindow(PageWindow):
         grid_layout.addWidget(help_label, 1, 0, 1, 6, QtCore.Qt.AlignCenter)
         help_label.setStyleSheet(Style.get_text_style())
 
-        # Add button to heights page
-        heights_button = QtWidgets.QPushButton("Recognise Heights", self)
-        grid_layout.addWidget(heights_button, 2, 0, 1, 2, alignment=QtCore.Qt.AlignCenter)
-        heights_button.setStyleSheet(Style.get_button_style())
-        heights_button.clicked.connect(
-            self.make_handleButton("ten_o_heights_button")
+        # Add button to pitches page
+        pitches_button = QtWidgets.QPushButton("Recognise Pitches", self)
+        grid_layout.addWidget(pitches_button, 2, 0, 1, 2, alignment=QtCore.Qt.AlignCenter)
+        pitches_button.setStyleSheet(Style.get_button_style())
+        pitches_button.clicked.connect(
+            self.make_handleButton("ten_o_pitches_button")
         )
 
         # Add button to intervals page
@@ -74,8 +74,8 @@ class MainWindow(PageWindow):
 
     def make_handleButton(self, button):
         def handleButton():
-            if button == "ten_o_heights_button":
-                self.goto("ten_o_heights_instruction_page")
+            if button == "ten_o_pitches_button":
+                self.goto("ten_o_pitches_instruction_page")
             if button == "intervals_button":
                 self.goto("intervals_instruction_page")
             if button == "voices_button":

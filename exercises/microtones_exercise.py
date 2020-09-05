@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from exercises.intervals_exercise import IntervalExample
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 from notes.microtonal_interval_generator import MicrotonalIntervalGenerator
 from synthesis.player import Player
@@ -17,8 +17,8 @@ class MicrotonesExercise:
         self._volume = None
         self._play_type = None
         self._interval_scale = None
-        self._lowest_height = None
-        self._highest_height = None
+        self._lowest_pitch = None
+        self._highest_pitch = None
         self._possible_detune = None
         self._synthesizer = Synthesizer(sampling_frequency)
         self._possible_error = None
@@ -42,11 +42,11 @@ class MicrotonesExercise:
     def set_interval_scale(self, interval_scale:IntervalScale):
         self._interval_scale = interval_scale
 
-    def set_lowest_height(self, lowest_height:Height):
-        self._lowest_height = lowest_height
+    def set_lowest_pitch(self, lowest_pitch:Pitch):
+        self._lowest_pitch = lowest_pitch
 
-    def set_highest_height(self, highest_height:Height):
-        self._highest_height = highest_height
+    def set_highest_pitch(self, highest_pitch:Pitch):
+        self._highest_pitch = highest_pitch
 
     def set_possible_detune(self, possible_detune:float):
         self._possible_detune = possible_detune
@@ -66,8 +66,8 @@ class MicrotonesExercise:
     def generate_new_example(self):
         microtone_generator = MicrotonalIntervalGenerator(
             scale=self._interval_scale,
-            lowest_height=self._lowest_height,
-            highest_height=self._highest_height,
+            lowest_pitch=self._lowest_pitch,
+            highest_pitch=self._highest_pitch,
             possible_detune=self._possible_detune
         )
         self._actual_example = IntervalExample(
@@ -86,36 +86,36 @@ class MicrotonesExercise:
         elif self._play_type == 'Upwards':
             self._player.play(
                 self._synthesizer.generate_interval_up(
-                    self._actual_example.lower_height,
-                    self._actual_example.higher_height
+                    self._actual_example.lower_pitch,
+                    self._actual_example.higher_pitch
                 )
             )
         elif self._play_type == 'Downwards':
             self._player.play(
                 self._synthesizer.generate_interval_down(
-                    self._actual_example.lower_height,
-                    self._actual_example.higher_height
+                    self._actual_example.lower_pitch,
+                    self._actual_example.higher_pitch
                 )
             )
         elif self._play_type == 'Upwards with hold':
             self._player.play(
                 self._synthesizer.generate_interval_up_hold(
-                    self._actual_example.lower_height,
-                    self._actual_example.higher_height
+                    self._actual_example.lower_pitch,
+                    self._actual_example.higher_pitch
                 )
             )
         elif self._play_type == 'Downwards with hold':
             self._player.play(
                 self._synthesizer.generate_interval_down_hold(
-                    self._actual_example.lower_height,
-                    self._actual_example.higher_height
+                    self._actual_example.lower_pitch,
+                    self._actual_example.higher_pitch
                 )
             )
         elif self._play_type == 'Together':
             self._player.play(
                 self._synthesizer.generate_interval_together(
-                    self._actual_example.lower_height,
-                    self._actual_example.higher_height
+                    self._actual_example.lower_pitch,
+                    self._actual_example.higher_pitch
                 )
             )
         else:

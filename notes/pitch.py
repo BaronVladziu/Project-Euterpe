@@ -3,44 +3,44 @@
 
 import numpy as np
 
-class Height:
+class Pitch:
     def __init__(self, cents:float):
         """
-        Musical height.
+        Musical pitch.
 
         :cents: Number of cents away from A4 (midi 69, 440Hz).
         """
         self._cents = cents
 
     @staticmethod
-    def from_frequency(frequency:float, detune=0) -> 'Height':
+    def from_frequency(frequency:float, detune=0) -> 'Pitch':
         """
-        Create new Height object.
+        Create new Pitch object.
 
         :frequency: Frequency in hertz.
         :detune: Number of cents away from given frequency.
         """
-        return Height(1200*np.log2(frequency/440) + detune)
+        return Pitch(1200*np.log2(frequency/440) + detune)
 
     @staticmethod
-    def from_midi(midi_height_id:int, detune=0) -> 'Height':
+    def from_midi(midi_pitch_id:int, detune=0) -> 'Pitch':
         """
-        Create new Height object.
+        Create new Pitch object.
 
-        :midi_height_id: Midi note height value.
+        :midi_pitch_id: Midi note pitch value.
         :detune: Number of cents away from normal frequency.
         """
-        return Height((midi_height_id - 69)*100 + detune)
+        return Pitch((midi_pitch_id - 69)*100 + detune)
 
     @staticmethod
-    def from_name(height_name:str, detune=0) -> 'Height':
+    def from_name(pitch_name:str, detune=0) -> 'Pitch':
         """
-        Create new Height object.
+        Create new Pitch object.
 
-        :height_name: Note name in midi notation.
+        :pitch_name: Note name in midi notation.
         :detune: Number of cents away from normal frequency.
         """
-        octave = int(height_name[-1])
+        octave = int(pitch_name[-1])
         possible_names = {
            'C': 0,
            'C#': 1,
@@ -80,27 +80,27 @@ class Height:
            'h': 11,
            'his': 12
         }
-        midi_id = 12*(1 + octave) + possible_names[height_name[:-1]]
-        return Height.from_midi(midi_id, detune)
+        midi_id = 12*(1 + octave) + possible_names[pitch_name[:-1]]
+        return Pitch.from_midi(midi_id, detune)
 
     @staticmethod
-    def from_cents_from_a(cents:float) -> 'Height':
+    def from_cents_from_a(cents:float) -> 'Pitch':
         """
-        Create new Height object.
+        Create new Pitch object.
 
         :cents: Number of cents away from A4 (midi 69, 440Hz).
         """
-        return Height(cents)
+        return Pitch(cents)
 
     @staticmethod
-    def from_height(height:'Height', detune=0) -> 'Height':
+    def from_pitch(pitch:'Pitch', detune=0) -> 'Pitch':
         """
-        Create new Height object.
+        Create new Pitch object.
 
-        :height: Height object.
+        :pitch: Pitch object.
         :detune: Number of cents away from normal frequency.
         """
-        return Height(height.get_cents_from_a() + detune)
+        return Pitch(pitch.get_cents_from_a() + detune)
 
     def get_cents_from_a(self) -> float:
         """
@@ -110,25 +110,25 @@ class Height:
         """
         return self._cents
 
-    def get_midi_height(self) -> (int, float):
+    def get_midi_pitch(self) -> (int, float):
         """
         Get mini value + detune.
 
         :returns: Midi value, Detune in cents in range <-50, 50).
         """
-        height_id = 69 + int(self._cents/100)
-        detune = self._cents - 100*(height_id - 69)
+        pitch_id = 69 + int(self._cents/100)
+        detune = self._cents - 100*(pitch_id - 69)
         while detune >= 50:
-            height_id += 1
+            pitch_id += 1
             detune -= 100
         while detune < -50:
-            height_id -= 1
+            pitch_id -= 1
             detune += 100
-        return (height_id, detune)
+        return (pitch_id, detune)
 
     def get_frequency(self, detune=0) -> float:
         """
-        Get frequency in hertz from the height.
+        Get frequency in hertz from the pitch.
 
         :detune: Number of cents away from original frequency.
         
@@ -136,22 +136,22 @@ class Height:
         """
         return np.power(2, (self._cents + detune)/1200) * 440
 
-    def copy(self, detune=0) -> 'Height':
-        return Height(self._cents + detune)
+    def copy(self, detune=0) -> 'Pitch':
+        return Pitch(self._cents + detune)
 
-    def add_interval(self, interval:'Interval', detune=0) -> 'Height':
-        return Height(self._cents + interval.get_cents() + detune)
-
-    @staticmethod
-    def lower(height1:'Height', height2:'Height'):
-        if height1._cents <= height2._cents:
-            return height1
-        else:
-            return height2
+    def add_interval(self, interval:'Interval', detune=0) -> 'Pitch':
+        return Pitch(self._cents + interval.get_cents() + detune)
 
     @staticmethod
-    def higher(height1:'Height', height2:'Height'):
-        if height1._cents >= height2._cents:
-            return height1
+    def lower(pitch1:'Pitch', pitch2:'Pitch'):
+        if pitch1._cents <= pitch2._cents:
+            return pitch1
         else:
-            return height2
+            return pitch2
+
+    @staticmethod
+    def higher(pitch1:'Pitch', pitch2:'Pitch'):
+        if pitch1._cents >= pitch2._cents:
+            return pitch1
+        else:
+            return pitch2

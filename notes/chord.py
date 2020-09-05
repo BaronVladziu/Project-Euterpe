@@ -1,38 +1,38 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from notes.height import Height
+from notes.pitch import Pitch
 
 class Chord:
-    def __init__(self, heights=list()):
+    def __init__(self, pitches=list()):
         """
-        Set of heights used as a whole.
+        Set of pitches used as a whole.
         """
-        self._heights = heights
-        self._heights.sort(
+        self._pitches = pitches
+        self._pitches.sort(
             key=lambda x: x.get_cents_from_a()
         )
 
     def get_size(self) -> int:
-        return len(self._heights)
+        return len(self._pitches)
 
-    def add_height(self, height:Height):
-        self._heights.append(height)
-        self._heights.sort(
+    def add_pitch(self, pitch:Pitch):
+        self._pitches.append(pitch)
+        self._pitches.sort(
             key=lambda x: x.get_cents_from_a()
         )
 
-    def get_height(self, voice_num:int) -> Height:
+    def get_pitch(self, voice_num:int) -> Pitch:
         if voice_num < 0:
             raise ValueError(
-                '[Chord::get_height('\
+                '[Chord::get_pitch('\
                 + str(voice_num)\
                 + ')] Voice number cannot be negative!'
             )
-        elif voice_num >= len(self._heights):
+        elif voice_num >= len(self._pitches):
             raise ValueError(
-                '[Chord::get_height('\
+                '[Chord::get_pitch('\
                 + str(voice_num)\
-                + ')] There is no height for this voice number!'
+                + ')] There is no pitch for this voice number!'
             )
-        return self._heights[voice_num]
+        return self._pitches[voice_num]

@@ -8,7 +8,7 @@ from gui.intervals_window import IntervalsWindow
 from gui.main_window import MainWindow
 from gui.microtones_window import MicrotonesWindow
 from gui.page_window import PageWindow
-from gui.ten_o_heights_window import TenOHeightsWindow
+from gui.ten_o_pitches_window import TenOPitchesWindow
 from gui.voices_window import VoicesWindow
 
 class Window(QtWidgets.QMainWindow):
@@ -19,22 +19,22 @@ class Window(QtWidgets.QMainWindow):
 
         self.m_pages = {}
 
-        ten_o_heights_window = TenOHeightsWindow()
+        ten_o_pitches_window = TenOPitchesWindow()
         self.register(
-            ten_o_heights_window.instruction_window,
-            "ten_o_heights_instruction_page"
+            ten_o_pitches_window.instruction_window,
+            "ten_o_pitches_instruction_page"
         )
         self.register(
-            ten_o_heights_window.main_window,
-            "ten_o_heights_page"
+            ten_o_pitches_window.main_window,
+            "ten_o_pitches_page"
         )
         self.register(
-            ten_o_heights_window.generator_window,
-            "ten_o_heights_generator_page"
+            ten_o_pitches_window.generator_window,
+            "ten_o_pitches_generator_page"
         )
         self.register(
-            ten_o_heights_window.setting_window,
-            "ten_o_heights_settings_page"
+            ten_o_pitches_window.setting_window,
+            "ten_o_pitches_settings_page"
         )
 
         intervals_window = IntervalsWindow()
