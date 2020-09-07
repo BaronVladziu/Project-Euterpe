@@ -9,7 +9,7 @@ class IntervalScale:
         List of avaliable musical intervals.
         """
         self._intervals = list()
-        self._detune = 0
+        self._detune = 0.0
 
         if scale_type == None:
             pass
@@ -53,7 +53,7 @@ class IntervalScale:
         self._intervals.append(heaight)
         self._intervals.sort(key=lambda x: x.cents, reverse=True)
 
-    def set_detune(self, detune:int) -> None:
+    def set_detune(self, detune:float) -> None:
         """
         Set detune to all intervals of the scale.
 
@@ -61,13 +61,13 @@ class IntervalScale:
         """
         self._detune = abs(detune)
 
-    def add_detune(self, detune:int) -> None:
+    def add_detune(self, detune:float) -> None:
         """
-        Add detune to all heights of the scale.
+        Add detune to all pitches of the scale.
 
         :detune: Detune from previous value.
         """
         self._detune = abs(self._detune + detune)
 
-    def get_intervals(self, detune=0) -> list:
+    def get_intervals(self, detune=0.0) -> list:
         return self._intervals

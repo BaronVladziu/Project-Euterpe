@@ -2,26 +2,26 @@
 # -*- coding: utf-8 -*-
 
 class Interval:
-    def __init__(self, cents:int):
+    def __init__(self, cents:float):
         """
-        Musical interval (distance between heights).
+        Musical interval (distance between pitches).
 
-        :cents: Distance between heights in cents.
+        :cents: Distance between pitches in cents.
         """
         self._cents = cents
 
     @staticmethod
-    def from_cents(cents:int) -> 'Interval':
+    def from_cents(cents:float) -> 'Interval':
         return Interval(cents)
 
     @staticmethod
-    def from_heights(
-        from_height:'Height',
-        to_height:'Height',
+    def from_pitches(
+        from_pitch:'Pitch',
+        to_pitch:'Pitch',
         detune=0
     ) -> 'Interval':
-        return Interval(to_height.get_cents_from_a()
-            - from_height.get_cents_from_a()
+        return Interval(to_pitch.get_cents_from_a()
+            - from_pitch.get_cents_from_a()
             + detune
         )
 

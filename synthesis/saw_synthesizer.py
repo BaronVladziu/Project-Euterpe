@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 
 class SawSynthesizer:

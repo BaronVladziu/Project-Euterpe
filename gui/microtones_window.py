@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from exercises.microtones_exercise import MicrotonesExercise
 from gui.exercise_window import ExerciseInstructionWindow, ExerciseMainWindow, ExerciseSettingsWindow
 from gui.picture_label import PictureLabel
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 from notes.interval_scale import IntervalScale
 from synthesis.noise_synthesizer import NoiseSynthesizer
@@ -46,7 +46,7 @@ if you failed.\
         self.main_window.grid_layout.addWidget(
             self.label,
             0, 0,
-            1, 6,
+            1, 7,
             QtCore.Qt.AlignCenter
         )
         self.label.set_move_event(self.move_event)
@@ -65,13 +65,13 @@ if you failed.\
         self.main_window.add_state_label(
             text="Press button to generate new example -->",
             position=1,
-            size=2
+            size=3
         )
 
         # Add action button
         self.main_window.add_button(
             name="action_button",
-            position=3,
+            position=4,
             size=1,
             text="Generate New Microtonal Interval",
             method=self.make_handleButton
@@ -80,7 +80,7 @@ if you failed.\
         # Add button to settings page
         self.main_window.add_button(
             name="settings_button",
-            position=4,
+            position=5,
             size=1,
             text="Exercise Settings",
             method=self.make_handleButton
@@ -89,7 +89,7 @@ if you failed.\
         # Add button to generator page
         self.main_window.add_button(
             name="generator_button",
-            position=5,
+            position=6,
             size=1,
             text="Sound Generator",
             method=self.make_handleButton
@@ -189,10 +189,10 @@ if you failed.\
             setting_method=self.scale_changed
         )
 
-        # Add lowest height setting
+        # Add lowest pitch setting
         self.setting_window.add_setting(
-            name="lowest_height",
-            text="Lowest Height:",
+            name="lowest_pitch",
+            text="Lowest Pitch:",
             values=[
                 "C0",
                 "C1",
@@ -205,13 +205,13 @@ if you failed.\
                 "C8"
             ],
             default_option_index=3,
-            setting_method=self.lowest_height_changed
+            setting_method=self.lowest_pitch_changed
         )
 
-        # Add highest height setting
+        # Add highest pitch setting
         self.setting_window.add_setting(
-            name="highest_height",
-            text="Highest Height:",
+            name="highest_pitch",
+            text="Highest Pitch:",
             values=[
                 "C1",
                 "C2",
@@ -224,7 +224,7 @@ if you failed.\
                 "C9"
             ],
             default_option_index=3,
-            setting_method=self.highest_height_changed
+            setting_method=self.highest_pitch_changed
         )
 
         # Add possible detune setting
@@ -320,7 +320,8 @@ if you failed.\
                 + "±"\
                 + str(int(self.exercise.get_possible_error()))\
                 + "c, Real value: "\
-                + "{:.2f}".format(true_value)
+                + "{:.2f}".format(true_value)\
+                + "c"
             )
         else:
             self.main_window.state_label.change_text(
@@ -385,14 +386,14 @@ if you failed.\
             IntervalScale(self.setting_window.get_setting("interval_scale"))
         )
 
-    def lowest_height_changed(self):
-        self.exercise.set_lowest_height(
-            Height.from_name(self.setting_window.get_setting("lowest_height"))
+    def lowest_pitch_changed(self):
+        self.exercise.set_lowest_pitch(
+            Pitch.from_name(self.setting_window.get_setting("lowest_pitch"))
         )
 
-    def highest_height_changed(self):
-        self.exercise.set_highest_height(
-            Height.from_name(self.setting_window.get_setting("highest_height"))
+    def highest_pitch_changed(self):
+        self.exercise.set_highest_pitch(
+            Pitch.from_name(self.setting_window.get_setting("highest_pitch"))
         )
 
     def possible_detune_changed(self):

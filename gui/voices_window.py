@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from exercises.voices_exercise import VoicesExercise
 from gui.exercise_window import ExerciseInstructionWindow, ExerciseMainWindow, ExerciseSettingsWindow
 from gui.picture_label import PictureLabel
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 from notes.scale import Scale
 from synthesis.noise_synthesizer import NoiseSynthesizer
@@ -26,11 +26,11 @@ class VoicesWindow():
         # === INSTRUCTION WINDOW ===
         self.instruction_window = ExerciseInstructionWindow(
             instruction="\n\n\
-In this exercise your task is to recognise heights of all sounds in all chords you hear.\n\n\
+In this exercise your task is to recognise pitches of all sounds in all chords you hear.\n\n\
 After pressing \"Generate New Example\" button a sequence of chords will be played.\n\n\
-Using left mouse button click on the black scale in such a place that the correct height\n\
+Using left mouse button click on the black scale in such a place that the correct pitch\n\
 is between cyan lines. Use right mouse button to erase answers you want to adjust.\n\n\
-After you mark all heights press \"Check answer\" button to check if your answers\n\
+After you mark all pitches press \"Check Answer\" button to check if your answers\n\
 are correct. Correct answers will appear in green and incorrent will appear in red.\
             ",
             back_button_name="back_from_instruction_button",
@@ -46,7 +46,7 @@ are correct. Correct answers will appear in green and incorrent will appear in r
         self.main_window.grid_layout.addWidget(
             self.label_widget,
             0, 0,
-            1, 7,
+            1, 8,
             QtCore.Qt.AlignCenter
         )
         self.labels = list()
@@ -65,13 +65,13 @@ are correct. Correct answers will appear in green and incorrent will appear in r
         self.main_window.add_state_label(
             text="Press button to generate new example -->",
             position=1,
-            size=2
+            size=3
         )
 
         # Add action button
         self.main_window.add_button(
             name="action_button",
-            position=3,
+            position=4,
             size=1,
             text="Generate New Example",
             method=self.make_handleButton
@@ -80,16 +80,16 @@ are correct. Correct answers will appear in green and incorrent will appear in r
         # Add answer button
         self.main_window.add_button(
             name="answer_button",
-            position=4,
+            position=5,
             size=1,
-            text="Check answer",
+            text="Check Answer",
             method=self.make_handleButton
         )
 
         # Add button to settings page
         self.main_window.add_button(
             name="settings_button",
-            position=5,
+            position=6,
             size=1,
             text="Exercise Settings",
             method=self.make_handleButton
@@ -98,7 +98,7 @@ are correct. Correct answers will appear in green and incorrent will appear in r
         # Add button to generator page
         self.main_window.add_button(
             name="generator_button",
-            position=6,
+            position=7,
             size=1,
             text="Sound Generator",
             method=self.make_handleButton
@@ -226,16 +226,16 @@ are correct. Correct answers will appear in green and incorrent will appear in r
                 "Pythagorean (C-based) (A=440Hz)",
                 "Just (C-based) (A=440Hz)",
                 "Quarter-comma meantone (C-based) (A=440Hz)",
-                "Bach's (according to Werckmeister) (A=440Hz)"
+                "Bach's (Werckmeister III) (A=440Hz)"
             ],
             default_option_index=0,
             setting_method=self.scale_changed
         )
 
-        # Add lowest height setting
+        # Add lowest pitch setting
         self.setting_window.add_setting(
-            name="lowest_height",
-            text="Lowest Height:",
+            name="lowest_pitch",
+            text="Lowest Pitch:",
             values=[
                 "C2",
                 "C3",
@@ -243,13 +243,13 @@ are correct. Correct answers will appear in green and incorrent will appear in r
                 "C5"
             ],
             default_option_index=0,
-            setting_method=self.lowest_height_changed
+            setting_method=self.lowest_pitch_changed
         )
 
-        # Add highest height setting
+        # Add highest pitch setting
         self.setting_window.add_setting(
-            name="highest_height",
-            text="Highest Height:",
+            name="highest_pitch",
+            text="Highest Pitch:",
             values=[
                 "C3",
                 "C4",
@@ -257,7 +257,7 @@ are correct. Correct answers will appear in green and incorrent will appear in r
                 "C6"
             ],
             default_option_index=3,
-            setting_method=self.highest_height_changed
+            setting_method=self.highest_pitch_changed
         )
 
         # Add smallest interval setting
@@ -373,7 +373,7 @@ are correct. Correct answers will appear in green and incorrent will appear in r
         # Create new labels
         for i in range(self.exercise.get_voice_length()):
             self.labels.append(PictureLabel(
-                picture_path='graphics/heights2.png',
+                picture_path='graphics/pitches2.png',
                 max_markers=self.exercise.get_chord_size()
             ))
 
@@ -450,7 +450,7 @@ are correct. Correct answers will appear in green and incorrent will appear in r
                     # Mark them on labels
                     for i in range(real_answer.example.get_voice_length()):
                         for j in range(real_answer.example.get_chord_size()):
-                            if_correct, true_value = real_answer.get_height(i, j)
+                            if_correct, true_value = real_answer.get_pitch(i, j)
                             self.labels[i].mark_correct_answer(
                                 if_correct,
                                 true_value.get_cents_from_a()/4 + 835
@@ -535,14 +535,14 @@ are correct. Correct answers will appear in green and incorrent will appear in r
             Scale(self.setting_window.get_setting("scale"))
         )
 
-    def lowest_height_changed(self):
-        self.exercise.set_lowest_height(
-            Height.from_name(self.setting_window.get_setting("lowest_height"))
+    def lowest_pitch_changed(self):
+        self.exercise.set_lowest_pitch(
+            Pitch.from_name(self.setting_window.get_setting("lowest_pitch"))
         )
 
-    def highest_height_changed(self):
-        self.exercise.set_highest_height(
-            Height.from_name(self.setting_window.get_setting("highest_height"))
+    def highest_pitch_changed(self):
+        self.exercise.set_highest_pitch(
+            Pitch.from_name(self.setting_window.get_setting("highest_pitch"))
         )
 
     def smallest_interval_changed(self):

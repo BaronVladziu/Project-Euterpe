@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 from notes.interval_generator import IntervalGenerator
 from synthesis.player import Player
@@ -9,10 +9,10 @@ from notes.scale import Scale
 from synthesis.synthesizer import Synthesizer
 
 class IntervalExample:
-    def __init__(self, generator_output:(Interval, Height, Height)):
+    def __init__(self, generator_output:(Interval, Pitch, Pitch)):
         self.interval = generator_output[0]
-        self.lower_height = generator_output[1]
-        self.higher_height = generator_output[2]
+        self.lower_pitch = generator_output[1]
+        self.higher_pitch = generator_output[2]
 
 
 class IntervalsExercise:
@@ -22,8 +22,8 @@ class IntervalsExercise:
         self._volume = None
         self._play_type = None
         self._scale = None
-        self._lowest_height = None
-        self._highest_height = None
+        self._lowest_pitch = None
+        self._highest_pitch = None
         self._smallest_interval = None
         self._largest_interval = None
         self._possible_detune = None
@@ -49,11 +49,11 @@ class IntervalsExercise:
     def set_scale(self, scale:Scale):
         self._scale = scale
 
-    def set_lowest_height(self, lowest_height:Height):
-        self._lowest_height = lowest_height
+    def set_lowest_pitch(self, lowest_pitch:Pitch):
+        self._lowest_pitch = lowest_pitch
 
-    def set_highest_height(self, highest_height:Height):
-        self._highest_height = highest_height
+    def set_highest_pitch(self, highest_pitch:Pitch):
+        self._highest_pitch = highest_pitch
 
     def set_smallest_interval(self, smallest_interval:Interval):
         self._smallest_interval = smallest_interval
@@ -79,8 +79,8 @@ class IntervalsExercise:
     def generate_new_example(self):
         interval_generator = IntervalGenerator(
             scale=self._scale,
-            lowest_height=self._lowest_height,
-            highest_height=self._highest_height,
+            lowest_pitch=self._lowest_pitch,
+            highest_pitch=self._highest_pitch,
             possible_detune=self._possible_detune,
             smallest_interval=self._smallest_interval,
             largest_interval=self._largest_interval
@@ -101,36 +101,36 @@ class IntervalsExercise:
         elif self._play_type == 'Upwards':
             self._player.play(
                 self._synthesizer.generate_interval_up(
-                    self._actual_example.lower_height,
-                    self._actual_example.higher_height
+                    self._actual_example.lower_pitch,
+                    self._actual_example.higher_pitch
                 )
             )
         elif self._play_type == 'Downwards':
             self._player.play(
                 self._synthesizer.generate_interval_down(
-                    self._actual_example.lower_height,
-                    self._actual_example.higher_height
+                    self._actual_example.lower_pitch,
+                    self._actual_example.higher_pitch
                 )
             )
         elif self._play_type == 'Upwards with hold':
             self._player.play(
                 self._synthesizer.generate_interval_up_hold(
-                    self._actual_example.lower_height,
-                    self._actual_example.higher_height
+                    self._actual_example.lower_pitch,
+                    self._actual_example.higher_pitch
                 )
             )
         elif self._play_type == 'Downwards with hold':
             self._player.play(
                 self._synthesizer.generate_interval_down_hold(
-                    self._actual_example.lower_height,
-                    self._actual_example.higher_height
+                    self._actual_example.lower_pitch,
+                    self._actual_example.higher_pitch
                 )
             )
         elif self._play_type == 'Together':
             self._player.play(
                 self._synthesizer.generate_interval_together(
-                    self._actual_example.lower_height,
-                    self._actual_example.higher_height
+                    self._actual_example.lower_pitch,
+                    self._actual_example.higher_pitch
                 )
             )
         else:

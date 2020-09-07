@@ -6,7 +6,7 @@ import random
 
 from notes.chord import Chord
 from notes.chord_generator import ChordGenerator
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 from notes.scale import Scale
 from synthesis.player import Player
@@ -34,8 +34,8 @@ class DetuningExample:
     def get_chord(self, i:int) -> Chord:
         return self.chords[i]
 
-    def get_height(self, chord_num:int, voice_num:int) -> Height:
-        return self.chords[chord_num].get_height(voice_num)
+    def get_pitch(self, chord_num:int, voice_num:int) -> Pitch:
+        return self.chords[chord_num].get_pitch(voice_num)
 
     def get_detuning(self) -> float:
         return self.detuning
@@ -49,8 +49,8 @@ class DetuningExercise:
         self._play_type = None
         self._scale = None
         self._max_detuning = None
-        self._lowest_height = None
-        self._highest_height = None
+        self._lowest_pitch = None
+        self._highest_pitch = None
         self._smallest_interval = None
         self._largest_interval = None
         self._synthesizer = Synthesizer(sampling_frequency)
@@ -80,11 +80,11 @@ class DetuningExercise:
     def set_max_detuning(self, max_detuning:float):
         self._max_detuning = max_detuning
 
-    def set_lowest_height(self, lowest_height:Height):
-        self._lowest_height = lowest_height
+    def set_lowest_pitch(self, lowest_pitch:Pitch):
+        self._lowest_pitch = lowest_pitch
 
-    def set_highest_height(self, highest_height:Height):
-        self._highest_height = highest_height
+    def set_highest_pitch(self, highest_pitch:Pitch):
+        self._highest_pitch = highest_pitch
 
     def set_smallest_interval(self, smallest_interval:Interval):
         self._smallest_interval = smallest_interval
@@ -122,15 +122,15 @@ class DetuningExercise:
             0,
             min(
                 self._max_detuning,
-                1200/2/len(self._scale._heights)
+                1200/2/len(self._scale._pitches)
             )
         )
 
         # Generate melody
         chord_generator = ChordGenerator(
             scale=self._scale,
-            lowest_height=self._lowest_height,
-            highest_height=self._highest_height,
+            lowest_pitch=self._lowest_pitch,
+            highest_pitch=self._highest_pitch,
             possible_detune=0,
             smallest_interval=self._smallest_interval,
             largest_interval=self._largest_interval,
@@ -172,11 +172,11 @@ class DetuningExercise:
         for i in range(len(tuned_chords)):
             for j in range(tuned_chords[i].get_size()):
                 if i*tuned_chords[i].get_size() + j in lowered_indices:
-                    tuned_chords[i]._heights[j] = tuned_chords[i]._heights[j].copy(
+                    tuned_chords[i]._pitches[j] = tuned_chords[i]._pitches[j].copy(
                         detune=-actual_detuning
                     )
                 elif i*tuned_chords[i].get_size() + j in highened_indices:
-                    tuned_chords[i]._heights[j] = tuned_chords[i]._heights[j].copy(
+                    tuned_chords[i]._pitches[j] = tuned_chords[i]._pitches[j].copy(
                         detune=actual_detuning
                     )
 

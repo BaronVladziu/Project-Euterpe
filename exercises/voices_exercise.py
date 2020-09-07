@@ -5,7 +5,7 @@ import numpy as np
 
 from notes.chord import Chord
 from notes.chord_generator import ChordGenerator
-from notes.height import Height
+from notes.pitch import Pitch
 from notes.interval import Interval
 from notes.scale import Scale
 from synthesis.player import Player
@@ -32,8 +32,8 @@ class VoicesExample:
     def get_chord(self, i:int) -> Chord:
         return self.chords[i]
 
-    def get_height(self, chord_num:int, voice_num:int) -> Height:
-        return self.chords[chord_num].get_height(voice_num)
+    def get_pitch(self, chord_num:int, voice_num:int) -> Pitch:
+        return self.chords[chord_num].get_pitch(voice_num)
 
 
 class VoicesAnswer:
@@ -52,8 +52,8 @@ class VoicesAnswer:
         self.example = example
         self.answers = answers
 
-    def get_height(self, chord_num:int, voice_num:int) -> (bool, Height):
-        return self.answers[chord_num][voice_num], self.example.get_chord(chord_num).get_height(voice_num)
+    def get_pitch(self, chord_num:int, voice_num:int) -> (bool, Pitch):
+        return self.answers[chord_num][voice_num], self.example.get_chord(chord_num).get_pitch(voice_num)
 
 
 class VoicesExercise:
@@ -63,8 +63,8 @@ class VoicesExercise:
         self._volume = None
         self._play_type = None
         self._scale = None
-        self._lowest_height = None
-        self._highest_height = None
+        self._lowest_pitch = None
+        self._highest_pitch = None
         self._smallest_interval = None
         self._largest_interval = None
         self._possible_detune = None
@@ -93,11 +93,11 @@ class VoicesExercise:
     def set_scale(self, scale:Scale):
         self._scale = scale
 
-    def set_lowest_height(self, lowest_height:Height):
-        self._lowest_height = lowest_height
+    def set_lowest_pitch(self, lowest_pitch:Pitch):
+        self._lowest_pitch = lowest_pitch
 
-    def set_highest_height(self, highest_height:Height):
-        self._highest_height = highest_height
+    def set_highest_pitch(self, highest_pitch:Pitch):
+        self._highest_pitch = highest_pitch
 
     def set_smallest_interval(self, smallest_interval:Interval):
         self._smallest_interval = smallest_interval
@@ -138,8 +138,8 @@ class VoicesExercise:
     def generate_new_example(self):
         chord_generator = ChordGenerator(
             scale=self._scale,
-            lowest_height=self._lowest_height,
-            highest_height=self._highest_height,
+            lowest_pitch=self._lowest_pitch,
+            highest_pitch=self._highest_pitch,
             possible_detune=self._possible_detune,
             smallest_interval=self._smallest_interval,
             largest_interval=self._largest_interval,
@@ -153,7 +153,7 @@ class VoicesExercise:
 
     def get_first_note(self):
         if self._if_first_note_provided:
-            return self._actual_example.get_height(0, 0)
+            return self._actual_example.get_pitch(0, 0)
 
     def play_example(self):
         # Check exercise state
@@ -226,16 +226,20 @@ class VoicesExercise:
             for voice_id in range(self._actual_example.get_chord_size()):
                 correct_answers[-1].append(False)
 
+        # Add first note to user answers
+        if self._if_first_note_provided:
+            user_answers[0].append(self.get_first_note().get_cents_from_a())
+
         # Set hit answers to true
         for chord_id in range(self._actual_example.get_voice_length()):
             for voice_id in range(self._actual_example.get_chord_size()):
                 for user_answer in user_answers[chord_id]:
-                    if self._actual_example.get_height(
+                    if self._actual_example.get_pitch(
                         chord_id,
                         voice_id
                     ).get_cents_from_a() + self._possible_error\
                     >= user_answer\
-                    >= self._actual_example.get_height(
+                    >= self._actual_example.get_pitch(
                         chord_id,
                         voice_id
                     ).get_cents_from_a() - self._possible_error:
