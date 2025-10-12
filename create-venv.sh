@@ -8,10 +8,10 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 # Create venv
-virtualenv -p /usr/bin/python3.6 env
+python3 -m venv .venv
 
 # Run venv
-source env/bin/activate
+source .venv/bin/activate
 
 # Print versions
 pip3 install --upgrade pip

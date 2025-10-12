@@ -27,6 +27,6 @@ https://github.com/BaronVladziu/Project-Euterpe
 git clone https://github.com/BaronVladziu/Project-Euterpe.git
 cd Project-Euterpe
 ./create-venv.sh
-source env/bin/activate
+source .venv/bin/activate
 ./main.py
 ```
